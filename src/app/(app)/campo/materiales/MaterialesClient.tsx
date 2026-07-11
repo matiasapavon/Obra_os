@@ -28,6 +28,22 @@ function estadoVisible(pedido: PedidoCampoRow | undefined): keyof typeof ESTILO 
   return "nada";
 }
 
+// La columna materiales.unidad tiene CHECK in ('bolsa','m3','ml','un','kg','lt').
+// El valor mandado a altaMaterial debe ser EXACTAMENTE uno de estos tokens (o
+// null). El chip guarda el token; la etiqueta es solo legibilidad es-AR. Así un
+// valor inválido es imposible de representar (no hay texto libre que rechace el
+// CHECK en el sync y deje el material varado en el espejo).
+type UnidadValida = "bolsa" | "m3" | "ml" | "un" | "kg" | "lt";
+
+const UNIDADES: { token: UnidadValida; etiqueta: string }[] = [
+  { token: "un", etiqueta: "Unidad" },
+  { token: "bolsa", etiqueta: "Bolsa" },
+  { token: "m3", etiqueta: "m³" },
+  { token: "ml", etiqueta: "Metro lineal" },
+  { token: "kg", etiqueta: "Kg" },
+  { token: "lt", etiqueta: "Litro" },
+];
+
 export default function MaterialesClient({
   obraId,
   materialesServidor,
@@ -39,7 +55,7 @@ export default function MaterialesClient({
 }) {
   const [altaAbierta, setAltaAbierta] = useState(false);
   const [nombre, setNombre] = useState("");
-  const [unidad, setUnidad] = useState("");
+  const [unidad, setUnidad] = useState<UnidadValida | null>(null);
 
   // Espejar los datos del server en Dexie (solo si llegaron: sin red la página
   // se sirve del cache del SW y los props pueden venir de una carga vieja).
@@ -71,9 +87,9 @@ export default function MaterialesClient({
     e.preventDefault();
     const n = nombre.trim();
     if (!n) return;
-    await altaMaterial(obraId, n, unidad.trim() || null);
+    await altaMaterial(obraId, n, unidad);
     setNombre("");
-    setUnidad("");
+    setUnidad(null);
     setAltaAbierta(false);
   }
 
@@ -143,12 +159,29 @@ export default function MaterialesClient({
             placeholder="Nombre"
             className="min-h-12 rounded-lg border border-black/20 px-3 text-base"
           />
-          <input
-            value={unidad}
-            onChange={(e) => setUnidad(e.target.value)}
-            placeholder="Unidad (opcional: bolsa, m3, un…)"
-            className="min-h-12 rounded-lg border border-black/20 px-3 text-base"
-          />
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-muted">Unidad (opcional)</span>
+            <div className="flex flex-wrap gap-2">
+              {UNIDADES.map(({ token, etiqueta }) => {
+                const activa = unidad === token;
+                return (
+                  <button
+                    key={token}
+                    type="button"
+                    aria-pressed={activa}
+                    onClick={() => setUnidad(activa ? null : token)}
+                    className={`min-h-12 rounded-lg border-2 px-4 font-bold ${
+                      activa
+                        ? "border-brand bg-brand text-white"
+                        : "border-brand/40 text-brand"
+                    }`}
+                  >
+                    {etiqueta}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <div className="flex gap-2">
             <button
               type="submit"
