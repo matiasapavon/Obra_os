@@ -1,28 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
 import { escucharReconexion } from "./sync";
 
+// Fuente externa: los eventos online/offline del navegador.
+function suscribir(alCambiar: () => void) {
+  window.addEventListener("online", alCambiar);
+  window.addEventListener("offline", alCambiar);
+  return () => {
+    window.removeEventListener("online", alCambiar);
+    window.removeEventListener("offline", alCambiar);
+  };
+}
+
 /** Estado reactivo de la cola offline para la UI. */
 export function useCola() {
-  const [online, setOnline] = useState(true);
+  // getServerSnapshot devuelve `true`: navigator no existe en SSR y así la
+  // hidratación no rompe (se corrige solo si el cliente arranca offline).
+  const online = useSyncExternalStore(
+    suscribir,
+    () => navigator.onLine,
+    () => true,
+  );
 
   useEffect(() => {
     escucharReconexion();
-    // Arranca en `true` para no romper la hidratación (navigator no existe en SSR)
-    // y se corrige una sola vez al montar; el guard de deps vacías evita cascada.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOnline(navigator.onLine);
-    const on = () => setOnline(true);
-    const off = () => setOnline(false);
-    window.addEventListener("online", on);
-    window.addEventListener("offline", off);
-    return () => {
-      window.removeEventListener("online", on);
-      window.removeEventListener("offline", off);
-    };
   }, []);
 
   const pendientes =
