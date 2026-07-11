@@ -69,6 +69,19 @@
 - [ ] Gating por rol en `/campo` (diferido: sin capataz no urge; `/oficina` ya está gateado).
 - [ ] Alta de filas desde `/oficina` (personal/tareas) — hoy solo edición inline de lo existente.
 
-## Fase 2 — Economía / plata (siguiente, solo desktop admin)
-- [ ] Rubros (imputación, default "Sin clasificar") + gastos imputados a rubro + `pedidos.gasto_id`.
-- [ ] Compromisos, ingresos, adicionales, vencimientos_admin. Ver `HANDOFF-fase1-oficina.md`.
+## Fase 2 — Economía / plata ✅ (solo desktop admin, 2026-07-11)
+- [x] Allow-list `EDITABLES` ampliada (rubros, gastos, compromisos, ingresos, adicionales,
+      vencimientos_admin) + 6 tabs nuevas en `OficinaNav`.
+- [x] **Rubros** (`/oficina/rubros`): presupuesto editable + gastado por rubro + saldo (rojo si
+      negativo). El rubro de sistema "Sin clasificar" no permite renombrar.
+- [x] **Gastos** (`/oficina/gastos`): imputación a rubro (select de rubros de la obra), monto,
+      moneda, tipo, medio de pago, comprobante, total visible arriba.
+- [x] **Compromisos, ingresos, adicionales, vencimientos** con el mismo patrón
+      (`TablaOficina`/`CeldaEditable`). Vencimientos pendientes ya pasados en rojo.
+- [x] Typecheck, lint y build verdes. Commit por entidad.
+- [ ] UI para linkear `pedidos_materiales.gasto_id` → gasto (el puente existe en el esquema;
+      falta decidir la interacción — probablemente un botón "crear gasto desde pedido").
+- [ ] Alta de filas de plata desde `/oficina` (hoy solo edición inline, igual que Fase 1).
+
+## Fase 3 — Cronograma + alertas (siguiente)
+- [ ] Etapas, dependencias, vencimientos que disparan avisos. Ver `HANDOFF-fase1-oficina.md`.
