@@ -10,11 +10,15 @@ materiales y diario.
 
 ## Decisiones (cerradas)
 
-- **Gesto:** 1 tap en la tarjeta de la persona cicla `pendiente → presente → medio día → ausente → pendiente`.
+- **Gesto:** 1 tap en la tarjeta de la persona cicla `presente → medio día → ausente → presente`.
+  "Sin marcar" es solo el estado inicial pre-tap (no se vuelve a él por tap: los 3 estados con
+  fila —presente/medio/ausente— tienen representación persistida distinta y round-trippean bien;
+  volver a "sin marcar" chocaría con "ausente" porque ambos usarían `deleted_at`).
   No se piden horas: `captured_at` registra el instante.
-- **Persistencia de estados:** solo presente y medio día generan fila viva en `asistencias`
-  (`medio_dia` bool). Ausente no crea fila; si la persona ya tenía fila (corrección de un tap),
-  se soft-borra reutilizando el mismo id con `deleted_at` — ver "Corrección de taps".
+- **Persistencia de estados:** presente y medio día son filas vivas en `asistencias`
+  (`medio_dia` bool, `deleted_at is null`); ausente es la misma fila soft-borrada (`deleted_at`
+  seteado, reutilizando el id). Las tres representaciones son distintas, así que el ciclo
+  round-trippea sin ambigüedad. Corregir un tap reutiliza el mismo id — ver "Corrección de taps".
 - **Alta de personal desde mobile:** botón `+ Persona`, sheet con nombre (rol opcional), inserta
   en `personal` con `obra_id` de la obra activa vía la cola. Datos finos se completan en `/oficina`.
 - **Obra activa:** se toma automáticamente la única obra con estado activo. Sin selector en Fase 1.
