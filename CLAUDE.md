@@ -26,11 +26,19 @@ decisiones: `ARCHITECTURE.md`. **Estado actual: Fase 0 completa.**
 
 ## Comandos
 - Dev: `npm run dev` · Build: `npm run build` · Servir prod (probar PWA): `npm start`.
-- Migraciones: editar SQL en `supabase/migrations/` → `npx supabase db push`.
+- Chequeos: `npm run lint` · `npm run typecheck` (CI corre ambos + build en cada push).
+- Migraciones: archivo SQL NUEVO en `supabase/migrations/` → `npx supabase db push` →
+  `npm run gen:types` (nunca editar migraciones ya aplicadas).
 - Íconos PWA: `node scripts/generate-icons.mjs`.
 
 ## Notas técnicas
 - Next 16 usa Turbopack por default y renombró `middleware` → `proxy` (ver `src/proxy.ts`).
-- Auth con `@supabase/ssr`; nunca usar el paquete deprecado `auth-helpers`.
+- Auth: **email + contraseña** con `@supabase/ssr` (NO magic-link; nunca usar el paquete
+  deprecado `auth-helpers`). Signup público deshabilitado: usuarios se crean en el Dashboard,
+  nacen `campo`, se promueven a admin por SQL.
 - PWA con service worker propio (`public/sw.js`), NO serwist (no soporta Turbopack).
-- RLS en todas las tablas; el primer usuario registrado queda admin automáticamente.
+- RLS en todas las tablas. DELETE físico solo admin (usar soft-delete `deleted_at`); el SELECT
+  de campo ya filtra filas borradas. La UI de campo lee pedidos por la vista
+  `pedidos_materiales_campo` (sin costos), nunca la tabla base.
+- Cola offline (Fase 1): el cliente genera el UUID del PK y sincroniza con
+  `upsert on conflict (id) do nothing`; ver convenciones en `ARCHITECTURE.md`.

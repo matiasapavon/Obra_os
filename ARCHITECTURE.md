@@ -37,19 +37,29 @@ La cola offline de cargas de campo (Fase 1) usa IndexedDB/Dexie a nivel app, ind
 
 ## Autenticación y roles
 
-- Magic-link por email (sin contraseñas). Flujo PKCE (`?code`) con fallback a `token_hash` en
-  `/auth/callback`, así funciona con el template de mail por default de Supabase sin tocarlo.
+- **Email + contraseña** (`signInWithPassword`). Se descartó el magic-link: el email service de
+  Supabase tiene rate limit bajo y depender de un mail en obra con mala señal es frágil.
+- **El signup público está deshabilitado** (Dashboard → Authentication). Los usuarios se crean a
+  mano en el Dashboard con "Auto Confirm"; nacen `campo` y se promueven a admin por SQL.
 - Sesión refrescada en cada request por `src/proxy.ts` (Next 16 renombró `middleware` → `proxy`).
   La autorización por ruta se hace en el layout de `(app)` (redirige a `/login` si no hay sesión).
-- **Roles:** `admin` (Mati) y `campo` (capataz futuro). Un trigger crea el `profile` al registrarse
-  y **hace admin al primer usuario del sistema**; el resto nace `campo`.
+- **Roles:** `admin` (Mati) y `campo` (capataz futuro). Un trigger crea el `profile` al registrarse.
 - **RLS:** activado en todas las tablas. Un helper `current_app_role()` (SECURITY DEFINER, sin
   recursión) resuelve el rol priorizando el claim del JWT y cayendo a `profiles.role`. Así las
   políticas funcionan **con o sin** el custom access token hook activado (el hook queda listo en la
-  base para activar en el Dashboard como optimización opcional).
+  base para activar en el Dashboard como optimización opcional). Ojo: con el hook activo, un cambio
+  de rol tarda hasta 1 h (expiry del JWT) en surtir efecto.
 - Tablas **admin-only**: rubros, gastos, compromisos, adicionales, ingresos, vencimientos_admin.
-  El resto es accesible por cualquier usuario autenticado; el afinado fino para `campo` (ocultar
-  plata por columna) se endurece en Fase 1, cuando exista el capataz.
+  El resto es accesible por cualquier usuario autenticado, con dos reglas transversales:
+  - **DELETE físico solo admin** en todo el esquema. Las cascadas de FK ignoran el RLS de las
+    tablas hijas, así que un DELETE de campo en `obras` arrasaría las tablas económicas. Lo normal
+    es soft-delete (`deleted_at`); el SELECT de campo filtra las filas borradas (admin ve todo).
+  - **Costos de `pedidos_materiales` solo admin:** el SELECT directo a la tabla es admin-only; la
+    UI de campo lee la vista `pedidos_materiales_campo` (sin `costo_estimado`/`costo_real`/
+    `gasto_id`). Campo puede insertar pedidos, pero sin costos (los completa admin).
+- **Scoping por obra diferido (decisión consciente):** las políticas compartidas no filtran por
+  obra (`obras_usuarios` no existe). Con una sola obra y sin usuarios campo no aporta nada; se
+  introduce cuando haya multi-obra real con capataces por obra.
 
 ## Modelo de datos
 
@@ -63,8 +73,26 @@ Esquema completo (handoff §4) en `supabase/migrations/`. Todas las tablas de do
 - **Diario/Admin:** diario_obra, fotos, vencimientos_admin.
 - **Sistema:** profiles (rol + metadata).
 
-Reglas de integridad activas: `gastos.rubro_id` NOT NULL; toda obra nueva nace con su rubro
-"Sin clasificar" (trigger); estados validados por CHECK; índices en FKs y columnas de filtro.
+Reglas de integridad activas: `gastos.rubro_id` NOT NULL con `ON DELETE RESTRICT` (una obra con
+gastos no se borra físico); toda obra nueva nace con su rubro "Sin clasificar" (trigger, marcado
+`es_sistema = true` y único por obra — buscarlo por el flag, no por el nombre); estados y rangos
+de fecha validados por CHECK; índices en todas las FKs y columnas de filtro.
+
+### Convenciones para la cola offline (Fase 1)
+
+- **Idempotencia:** el cliente (Dexie) genera el UUID del PK al capturar y sincroniza con
+  `upsert on conflict (id) do nothing` — un reintento nunca duplica. No hay columna extra.
+- **`updated_at`** (trigger automático) en todas las tablas de dominio: base para sync
+  incremental y last-write-wins.
+- **`captured_at`** en las tablas de captura de campo (asistencias, diario_obra, stock_eventos,
+  fotos, tareas): instante real de la captura; `created_at` pasa a ser el momento del sync.
+- **`created_offline`** marca las filas que entraron por la cola.
+- **Fotos:** `url` es nullable + `estado_upload` (`pendiente`/`subida`/`error`) — la fila se
+  sincroniza primero, el binario sube cuando hay señal.
+- **Asistencias:** `hora_entrada`/`hora_salida` quedan como `time` sin tz (una obra, un huso,
+  es-AR); el instante exacto lo da `captured_at`. Decisión consciente, no un olvido.
+- **`personal.obra_id`** vincula cada persona a su obra para el flujo de asistencia ("quién
+  trabaja acá hoy"). La tabla puente multi-obra se difiere hasta que exista el caso real.
 
 ## Convenciones de UI (handoff §6)
 
@@ -79,9 +107,10 @@ Reglas de integridad activas: `gastos.rubro_id` NOT NULL; toda obra nueva nace c
 ```
 src/
   app/
-    (auth)/login/        -> /login  (magic-link)
+    (auth)/login/        -> /login  (email + contraseña)
     (app)/               -> /        (área autenticada; layout con guard + header)
-    auth/callback/       -> /auth/callback  (exchange del magic-link)
+    (app)/campo/         -> /campo   (superficie mobile: capturar — placeholder Fase 1)
+    (app)/oficina/       -> /oficina (superficie desktop: gestionar — placeholder Fase 1)
     layout.tsx           (root: metadata PWA + registro del SW)
     globals.css          (tema + semántica de color)
   components/            (LogoutButton, ServiceWorkerRegister)

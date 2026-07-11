@@ -10,7 +10,7 @@ leyendo los datos por API.
 ## Stack
 
 - **Next.js 16 (App Router) + TypeScript + Tailwind v4** — un codebase responsive (mobile + desktop).
-- **Supabase** — Postgres + Auth (magic-link) + Storage + API REST (PostgREST).
+- **Supabase** — Postgres + Auth (email + contraseña) + Storage + API REST (PostgREST).
 - **PWA** — instalable en el celular; service worker propio (`public/sw.js`) para shell offline.
 - **Deploy** — Vercel (frontend) + Supabase cloud. Todo en planes gratuitos.
 
@@ -39,6 +39,8 @@ leyendo los datos por API.
 | `npm run build` | Build de producción. |
 | `npm start` | Sirve el build de producción (para probar la PWA/offline en local). |
 | `npm run lint` | ESLint. |
+| `npm run typecheck` | TypeScript sin emitir (`tsc --noEmit`). |
+| `npm run gen:types` | Regenera `src/lib/supabase/database.types.ts` desde la base linkeada. |
 | `node scripts/generate-icons.mjs` | Regenera los íconos PWA. |
 
 ## Base de datos (Supabase)
@@ -52,8 +54,11 @@ npx supabase db push                        # aplica las migraciones a la nube
 ```
 
 - Roles: `admin` (Mati, acceso total) y `campo` (capataz futuro, sin datos económicos).
-- **El primer usuario que se loguea queda como `admin` automáticamente** (trigger en la base).
-- RLS activado en todas las tablas.
+- **El signup público está deshabilitado.** Los usuarios se crean a mano en el Dashboard
+  (Authentication → Users, con "Auto Confirm"); nacen con rol `campo` y se promueven por SQL:
+  `update profiles set role = 'admin' where id = '<uuid>'`.
+- RLS activado en todas las tablas. El DELETE físico es solo-admin en todo el esquema
+  (lo normal es soft-delete vía `deleted_at`).
 
 ## Deploy (Vercel)
 
