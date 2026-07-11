@@ -107,6 +107,16 @@
 ## Fase 6 — Pulido (parcial)
 - [x] Compresión de fotos en el cliente antes de guardar/subir (JPEG, lado ≤1600px, calidad
       0,8; best-effort, ante fallo sube la original). `src/lib/offline/comprimir.ts`.
-- [ ] Multi-obra (`obras_usuarios` + selector) — **bloqueado**: necesita migración nueva
-      aplicada por Demian (`db push` + `gen:types`).
-- [ ] Backups — decidir estrategia (los backups diarios de Supabase quizás alcanzan).
+- [x] Multi-obra: migración `obras_usuarios` aplicada + **selector de obra** en el header de
+      `/oficina`. `obraActiva` resuelve por cookie (fallback a la obra activa); server action
+      admin-only fija la obra en foco y revalida. El selector aparece solo con >1 obra viva.
+- [x] Compresión de fotos en el cliente (arriba).
+- [ ] Backups — **decisión: dejar los backups automáticos de Supabase** (diarios en el plan pago;
+      alcanzan para esta escala). Sin código. Revisar si se sube de plan/escala.
+
+### Diferido consciente de multi-obra
+- Alta de obras y asignación de gente (`obras_usuarios`) desde la UI: hoy el selector lista todas
+  las obras vivas (admin las ve por RLS); crear obras y asignar campo se hace por SQL/Dashboard
+  hasta que haga falta una pantalla.
+- Scoping de campo por `obras_usuarios`: el selector es solo de oficina; campo sigue capturando
+  contra su obra. Enganchar cuando exista un capataz con varias obras.
