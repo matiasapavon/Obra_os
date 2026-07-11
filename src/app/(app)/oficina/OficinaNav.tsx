@@ -11,6 +11,12 @@ const TABS = [
   { href: "/oficina/personal", label: "Personal" },
   { href: "/oficina/asistencias", label: "Asistencias" },
   { href: "/oficina/diario", label: "Diario" },
+  { href: "/oficina/rubros", label: "Rubros" },
+  { href: "/oficina/gastos", label: "Gastos" },
+  { href: "/oficina/compromisos", label: "Compromisos" },
+  { href: "/oficina/ingresos", label: "Ingresos" },
+  { href: "/oficina/adicionales", label: "Adicionales" },
+  { href: "/oficina/vencimientos", label: "Vencimientos" },
 ];
 
 export default function OficinaNav() {

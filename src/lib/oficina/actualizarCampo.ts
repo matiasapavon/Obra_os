@@ -13,12 +13,23 @@ const EDITABLES: Record<string, readonly string[]> = {
   pedidos_materiales: ["estado", "cantidad", "proveedor", "costo_estimado", "costo_real",
     "fecha_necesidad", "fecha_pedido", "fecha_entrega_estimada", "fecha_entrega_real", "notas"],
   asistencias: ["observacion", "medio_dia", "hora_entrada", "hora_salida"],
+  rubros: ["nombre", "presupuesto_base", "notas"],
+  gastos: ["concepto", "monto", "moneda", "tipo", "medio_pago", "fecha", "rubro_id",
+    "comprobante_url", "notas"],
+  compromisos: ["concepto", "monto_total", "monto_pagado", "estado", "fecha_estimada_pago",
+    "rubro_id", "notas"],
+  ingresos: ["concepto", "monto", "moneda", "fecha", "notas"],
+  adicionales: ["descripcion", "estado", "origen", "lo_paga", "costo_estimado", "costo_real",
+    "fecha", "notas"],
+  vencimientos_admin: ["tipo", "descripcion", "fecha_vencimiento", "alerta_dias_antes",
+    "estado", "responsable"],
 };
 
 // El pedido se gestiona dentro de la pestaña Materiales; el resto de las tablas
 // tiene ruta homónima.
 const RUTA: Record<string, string> = {
   pedidos_materiales: "materiales",
+  vencimientos_admin: "vencimientos",
 };
 
 // El nombre de tabla y la columna son dinámicos pero ya validados contra la
