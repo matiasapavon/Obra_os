@@ -17,60 +17,49 @@
 - Pantallas: `/campo` (home con nav a las 4), `/campo/asistencia`, `/campo/tareas`,
   `/campo/materiales`, `/campo/diario`. Cada tramo revisado y con build verde.
 
-**Fase 1 — desktop `/oficina`** 🔨 EN CURSO. FUNDAMENTO listo, faltan las 5 vistas de entidad.
-- Hecho (commits `25ba864`, `02e7661`):
+**Fase 1 — desktop `/oficina`** ✅ COMPLETA. Fundamento + las 5 vistas de entidad, build verde.
+- Fundamento (`25ba864`, `02e7661`):
   - `src/app/(app)/oficina/layout.tsx` — gate admin (`role !== 'admin'` → `redirect('/campo')`),
     resuelve obra activa, shell desktop (`max-w-6xl mx-auto px-6 py-6`).
-  - `src/app/(app)/oficina/OficinaNav.tsx` — tabs (`usePathname`): Tareas/Materiales/Personal/
-    Asistencias/Diario.
+  - `src/app/(app)/oficina/OficinaNav.tsx` — tabs (`usePathname`).
   - `src/app/(app)/oficina/page.tsx` → `redirect('/oficina/tareas')`.
   - `src/app/(app)/page.tsx` — launcher role-aware (admin: cards Campo/Oficina; campo: redirect).
   - `src/lib/oficina/actualizarCampo.ts` — **server action** de edición inline con allow-list
-    `EDITABLES` por tabla + re-chequeo de admin (defensa en profundidad) + `revalidatePath`.
-  - `src/components/oficina/` — `TablaOficina.tsx`, `CeldaEditable.tsx` (props: tabla,id,columna,
-    valor,tipo `text|number|money|date|select`,opciones?), `BadgeEstado.tsx`.
-- ⚠️ **`/oficina` 404ea en runtime** hasta que existan las 5 páginas de entidad (la nav ya apunta a ellas).
+    `EDITABLES` por tabla + re-chequeo de admin + `revalidatePath`.
+  - `src/lib/oficina/obra.ts` — helper `obraActiva(supabase)`.
+  - `src/components/oficina/` — `TablaOficina.tsx` (props `columnas`, `hayFilas`, `vacio`),
+    `CeldaEditable.tsx` (tabla,id,columna,valor,tipo `text|number|money|date|select`,opciones?),
+    `BadgeEstado.tsx`.
+- Vistas (`d5acb72` tareas, `3641536` materiales+pedidos con costos, `6b31cc9` personal,
+  `ad1e3f2` asistencias, diario solo-lectura): server components que reusan el patrón, escritura
+  directa a Supabase (NO Dexie), joins FK con embedded selects. Materiales es el ÚNICO lugar con
+  plata (`costo_estimado`/`costo_real`, `formatARS`), admin-gateado.
+- Diferido consciente: gate de `/campo` (sin capataz no urge); alta de filas desde oficina
+  (personal/tareas) quedó fuera — hoy solo edición inline de lo existente. Agregar si hace falta.
 
-## LO QUE SIGUE — arrancá acá
+## LO QUE SIGUE — arrancá acá: FASE 2 (economía / plata)
 
-### PASO 1: las 5 vistas de entidad de `/oficina` (cierra Fase 1)
-Cada una es un **server component** que reusa el patrón ya construido. NO usar Dexie (desktop es
-online, escritura directa). Sacar `obraId` re-resolviendo la obra activa en cada página
-(`obras` where `estado='activa'`, `deleted_at is null`, limit 1, `maybeSingle`) — o crear helper
-`src/lib/oficina/obra.ts` (`obraActiva(supabase)`) y usarlo en las 5. Joins FK con embedded
-selects de PostgREST (`.select("*, personal(nombre)")`). Verificar columnas en
-`src/lib/supabase/database.types.ts` ANTES de usarlas. Celdas editables → `<CeldaEditable>`
-(ya llama a la server action). Un commit por entidad. typecheck+lint tras cada una, build al final.
+Toda desktop, admin-only, **mismo patrón de `/oficina`** ya establecido (TablaOficina +
+CeldaEditable + server action `actualizarCampo`). Reusá todo eso.
 
-1. **`/oficina/tareas/page.tsx`** — cols: `nombre`(text), `estado`(BadgeEstado+select
-   pendiente/en_curso/terminada/bloqueada), `porcentaje_avance`(number), `ubicacion`(text),
-   `orden`(number), `fecha_inicio_plan`/`fecha_fin_plan`/`fecha_inicio_real`/`fecha_fin_real`(date).
-   Order by `orden`.
-2. **`/oficina/materiales/page.tsx`** — DOS tablas. (a) Pedidos: `.from("pedidos_materiales")
-   .select("*, materiales(nombre)")` → material nombre (RO), `cantidad`(number), `estado`(badge+
-   select a_pedir/pedido/en_camino/entregado/faltante), fechas (date), `proveedor`(text),
-   **`costo_estimado`/`costo_real`**(money, `formatARS` — ÚNICO lugar con plata), `notas`(text).
-   (b) Catálogo materiales: `nombre`(text), `unidad`(select bolsa/m3/ml/un/kg/lt),
-   `proveedor_habitual`(text), `lead_time_dias`(number) — verificar que existan.
-3. **`/oficina/personal/page.tsx`** — `.select("*, gremios(nombre)")` (si existe FK): `nombre`,
-   `rol`, `telefono`(text), gremio nombre(RO), `art_vencimiento`/`seguro_vencimiento`(date, colorear
-   celda: warn <30 días, alert vencido), `created_at`(RO).
-4. **`/oficina/asistencias/page.tsx`** — read-mostly. `.select("*, personal(nombre)")`: nombre(RO),
-   `fecha`(RO), `hora_entrada`/`hora_salida`, `medio_dia`, `observacion`(edit), `created_offline`
-   (badge "campo"). Order fecha desc.
-5. **`/oficina/diario/page.tsx`** — SOLO LECTURA. `fecha`, `texto`, `clima`, `etiquetas`(pills),
-   `created_offline`(badge). Order fecha desc.
+### Pasos concretos
+1. **Agregar las tablas de plata al allow-list** `EDITABLES` en `src/lib/oficina/actualizarCampo.ts`
+   (hoy solo tiene tareas/personal/materiales/pedidos_materiales/asistencias): sumá `gastos`,
+   `rubros`, `compromisos`, `ingresos`, `adicionales`, `vencimientos_admin` con sus columnas
+   editables (verificá en `database.types.ts`).
+2. **Nuevas rutas** bajo `/oficina/` + tabs en `OficinaNav.tsx`: `gastos`, `rubros`, y las demás.
+3. **Rubros:** cada obra nace con rubro "Sin clasificar" (trigger Fase 0). Todo gasto se imputa a
+   un rubro (principio #5, default "Sin clasificar"). Vista de rubros con `presupuesto_base` (money)
+   editable + resumen de gastado por rubro.
+4. **Gastos:** tabla con imputación a rubro (select de rubros de la obra), monto (`formatARS`),
+   fecha, proveedor, medio de pago, comprobante. Linkear `pedidos_materiales.gasto_id` → un `gasto`
+   (el puente que quedó preparado en Fase 1).
+5. **Compromisos/ingresos/adicionales/vencimientos_admin:** tablas simples con el mismo patrón.
+6. Verificá `typecheck`/`lint`/`build` por vista; commit por entidad.
 
-### PASO 2: cerrar Fase 1
-- Gating por rol ya está en `/oficina/layout.tsx`. Falta decidir si `/campo` necesita gate (hoy
-  cualquier autenticado entra; en Fase 1 sin capataz no urge — documentado como diferido).
-- Actualizar `tasks/todo.md`: marcar `/oficina` hecho.
+### Fase 2 — al terminar, actualizá `tasks/todo.md`.
 
 ### Fases siguientes (roadmap, esquema ya existe, falta UI) — mismo patrón desktop de `/oficina`
-- **Fase 2 — economía/plata (solo desktop, admin):** `gastos`, `rubros` (imputación, default
-  "Sin clasificar"), `compromisos`, `ingresos`, `adicionales`, `vencimientos_admin`. Linkear
-  `pedidos_materiales.gasto_id` a un `gasto`. Reusar `TablaOficina`/`CeldaEditable`/server action.
-  Agregar `gastos`, `rubros`, etc. al allow-list `EDITABLES`.
 - **Fase 3 — cronograma + alertas:** `etapas`, `dependencias`, vencimientos que disparan avisos.
 - **Fase 4 — dashboards:** vistas de resumen (avance, plata por rubro, asistencia). Charts.
 - **Fase 5 — API export + Cowork:** endpoints legibles (tablas/columnas en español, ya está).

@@ -63,5 +63,12 @@
       `authenticated`. Sin esto, las notas del diario sincronizan pero las fotos quedan en `error`.
 - [ ] **Prueba manual offline end-to-end** (DevTools offline → capturar en las 4 pantallas →
       recargar → reconectar → verificar filas en Supabase con `created_offline`/`captured_at`).
-- [ ] Vistas de tabla desktop en `/oficina` para las mismas entidades (edición inline).
-- [ ] Gating por rol en `/campo` y `/oficina` (cuando exista el capataz).
+- [x] Vistas de tabla desktop en `/oficina` (tareas, materiales+pedidos con costos, personal,
+      asistencias, diario) con edición inline vía server action + allow-list. Gate admin en el
+      layout de `/oficina`. Patrón reutilizable `TablaOficina`/`CeldaEditable`/`BadgeEstado`.
+- [ ] Gating por rol en `/campo` (diferido: sin capataz no urge; `/oficina` ya está gateado).
+- [ ] Alta de filas desde `/oficina` (personal/tareas) — hoy solo edición inline de lo existente.
+
+## Fase 2 — Economía / plata (siguiente, solo desktop admin)
+- [ ] Rubros (imputación, default "Sin clasificar") + gastos imputados a rubro + `pedidos.gasto_id`.
+- [ ] Compromisos, ingresos, adicionales, vencimientos_admin. Ver `HANDOFF-fase1-oficina.md`.
