@@ -62,8 +62,8 @@
 - [x] **Diario** (`/campo/diario`): nota de texto + foto opcional; sync en dos canales (fila JSON
       por la cola, binario como Blob en IndexedDB + uploader a Storage diferido).
 - [x] Verificado en cada tramo: typecheck, lint y build verdes; cada tramo revisado por subagente.
-- [ ] **[Dashboard Supabase]** Crear bucket de Storage `fotos-obra` con policies insert/select para
-      `authenticated`. Sin esto, las notas del diario sincronizan pero las fotos quedan en `error`.
+- [x] **[Dashboard Supabase]** Bucket de Storage `fotos-obra` creado (público, insert para
+      `authenticated`, select público). Falta la verificación end-to-end desde `/campo/diario`.
 - [ ] **Prueba manual offline end-to-end** (DevTools offline → capturar en las 4 pantallas →
       recargar → reconectar → verificar filas en Supabase con `created_offline`/`captured_at`).
 - [x] Vistas de tabla desktop en `/oficina` (tareas, materiales+pedidos con costos, personal,
