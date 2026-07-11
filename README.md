@@ -24,7 +24,7 @@ leyendo los datos por API.
    (Project Settings → API):
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key-publica
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=tu-anon-key-publica
    ```
 3. **Levantar el dev server** (Turbopack):
    ```bash
@@ -62,7 +62,7 @@ npx vercel            # login + primer deploy (seguí las instrucciones)
 npx vercel --prod     # deploy a producción
 ```
 
-Cargá `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` en
+Cargá `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en
 Vercel → Project → Settings → Environment Variables.
 
 ## Límites de los planes gratuitos
