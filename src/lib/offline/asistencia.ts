@@ -1,5 +1,6 @@
 import { db, type AsistenciaRow, type PersonalRow } from "./db";
 import { encolar } from "./sync";
+import { fechaHoyISO } from "@/lib/format";
 
 export type EstadoAsistencia = "pendiente" | "presente" | "medio" | "ausente";
 
@@ -7,18 +8,13 @@ export const SIGUIENTE_ESTADO: Record<EstadoAsistencia, EstadoAsistencia> = {
   pendiente: "presente",
   presente: "medio",
   medio: "ausente",
-  ausente: "pendiente",
+  ausente: "presente",
 };
 
 export function estadoDeFila(fila: AsistenciaRow | undefined): EstadoAsistencia {
   if (!fila) return "pendiente";
   if (fila.deleted_at) return "ausente";
   return fila.medio_dia ? "medio" : "presente";
-}
-
-function hoyISO(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 /**
@@ -42,7 +38,7 @@ export async function marcarAsistencia(
     id,
     obra_id: obraId,
     personal_id: personalId,
-    fecha: filaPrevia?.fecha ?? hoyISO(),
+    fecha: filaPrevia?.fecha ?? fechaHoyISO(),
     medio_dia: estado === "medio",
     hora_entrada: null,
     hora_salida: null,
@@ -51,7 +47,7 @@ export async function marcarAsistencia(
     captured_at: filaPrevia?.captured_at ?? ahora,
     created_at: filaPrevia?.created_at ?? ahora,
     updated_at: ahora,
-    deleted_at: estado === "ausente" || estado === "pendiente" ? ahora : null,
+    deleted_at: estado === "ausente" ? ahora : null,
   };
 
   await db.asistencias_hoy.put(fila);

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { fechaHoyISO } from "@/lib/format";
 import AsistenciaClient from "./AsistenciaClient";
 
 // Server component: resuelve obra activa + datos frescos y se los pasa al
@@ -22,7 +23,7 @@ export default async function AsistenciaPage() {
     );
   }
 
-  const hoy = new Date().toISOString().slice(0, 10);
+  const hoy = fechaHoyISO();
   const [{ data: personal }, { data: asistencias }] = await Promise.all([
     supabase
       .from("personal")

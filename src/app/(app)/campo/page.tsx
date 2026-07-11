@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { fechaHoyISO } from "@/lib/format";
 
 // Superficie mobile: capturar (asistencia, tareas, materiales, diario).
 // Acá nunca se pide ni se muestra dinero.
@@ -18,13 +19,14 @@ export default async function CampoPage() {
   let presentes = 0;
   let total = 0;
   if (obra) {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = fechaHoyISO();
     const [{ count: nPresentes }, { count: nTotal }] = await Promise.all([
       supabase
         .from("asistencias")
         .select("id", { count: "exact", head: true })
         .eq("obra_id", obra.id)
-        .eq("fecha", hoy),
+        .eq("fecha", hoy)
+        .is("deleted_at", null),
       supabase
         .from("personal")
         .select("id", { count: "exact", head: true })

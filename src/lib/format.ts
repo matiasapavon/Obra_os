@@ -26,6 +26,17 @@ export function formatNumero(n: number, decimales = 0): string {
   return grupos(decimales).format(n);
 }
 
+/** Fecha de hoy en América/Argentina/Buenos_Aires, formato YYYY-MM-DD. */
+export function fechaHoyISO(): string {
+  // en-CA formatea como YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 const rtf = new Intl.RelativeTimeFormat("es-AR", { numeric: "auto" });
 
 function aDate(fecha: string | Date): Date {
