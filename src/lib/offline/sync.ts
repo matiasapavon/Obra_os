@@ -7,6 +7,7 @@ const OPCIONES_UPSERT: Record<TablaSincronizable, { ignoreDuplicates: boolean }>
   asistencias: { ignoreDuplicates: false },
   personal: { ignoreDuplicates: true },
   tareas: { ignoreDuplicates: false },
+  materiales: { ignoreDuplicates: true },
   pedidos_materiales: { ignoreDuplicates: false },
   diario_obra: { ignoreDuplicates: false },
   fotos: { ignoreDuplicates: false },

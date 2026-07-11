@@ -6,6 +6,7 @@ export type TablaSincronizable =
   | "asistencias"
   | "personal"
   | "tareas"
+  | "materiales"
   | "pedidos_materiales"
   | "diario_obra"
   | "fotos";
