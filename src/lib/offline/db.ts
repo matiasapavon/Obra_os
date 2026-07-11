@@ -13,6 +13,9 @@ export type TablaSincronizable =
 export type AsistenciaRow = Database["public"]["Tables"]["asistencias"]["Row"];
 export type PersonalRow = Database["public"]["Tables"]["personal"]["Row"];
 export type TareaRow = Database["public"]["Tables"]["tareas"]["Row"];
+export type MaterialRow = Database["public"]["Tables"]["materiales"]["Row"];
+// Campo lee pedidos por la vista sin costos (la tabla base es admin-only al SELECT).
+export type PedidoCampoRow = Database["public"]["Views"]["pedidos_materiales_campo"]["Row"];
 
 // Ítem de la cola de escrituras. El id es el UUID del PK remoto (lo genera el
 // cliente al capturar): reintentar el upsert nunca duplica.
@@ -32,6 +35,8 @@ const db = new Dexie("obra-os") as Dexie & {
   personal: EntityTable<PersonalRow, "id">;
   asistencias_hoy: EntityTable<AsistenciaRow, "id">;
   tareas_hoy: EntityTable<TareaRow, "id">;
+  materiales: EntityTable<MaterialRow, "id">;
+  pedidos_campo: EntityTable<PedidoCampoRow, "id">;
 };
 
 db.version(1).stores({
@@ -47,6 +52,17 @@ db.version(2).stores({
   personal: "id, obra_id",
   asistencias_hoy: "id, personal_id",
   tareas_hoy: "id, obra_id",
+});
+
+// v3: agrega los espejos de materiales y pedidos de campo. Migración aditiva:
+// se listan TODOS los stores previos (v1 + v2) más los nuevos.
+db.version(3).stores({
+  cola: "id, estado, tabla",
+  personal: "id, obra_id",
+  asistencias_hoy: "id, personal_id",
+  tareas_hoy: "id, obra_id",
+  materiales: "id, obra_id",
+  pedidos_campo: "id, obra_id, material_id",
 });
 
 export { db };
