@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation";
 // Pestañas de sección de la oficina. Client component chico porque el layout es
 // server: acá se necesita usePathname para resaltar la pestaña activa.
 const TABS = [
+  { href: "/oficina/resumen", label: "Resumen" },
   { href: "/oficina/tareas", label: "Tareas" },
+  { href: "/oficina/etapas", label: "Etapas" },
   { href: "/oficina/materiales", label: "Materiales" },
   { href: "/oficina/personal", label: "Personal" },
   { href: "/oficina/asistencias", label: "Asistencias" },
@@ -17,6 +19,7 @@ const TABS = [
   { href: "/oficina/ingresos", label: "Ingresos" },
   { href: "/oficina/adicionales", label: "Adicionales" },
   { href: "/oficina/vencimientos", label: "Vencimientos" },
+  { href: "/oficina/alertas", label: "Alertas" },
 ];
 
 export default function OficinaNav() {
