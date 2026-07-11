@@ -33,19 +33,25 @@ export async function sincronizar(): Promise<void> {
   sincronizando = true;
   try {
     const supabase = createClient();
-    const pendientes = await db.cola.where("estado").equals("pendiente").toArray();
-    for (const item of pendientes) {
-      const { error } = await supabase
-        .from(item.tabla)
-        // El payload viene tipado desde encolarAsistencia/encolarPersona; acá ya es opaco.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .upsert(item.payload as any, OPCIONES_UPSERT[item.tabla]);
-      if (error) {
-        // Sin red el fetch lanza (catch de abajo); un PostgrestError acá es un
-        // rechazo real (RLS/CHECK): no reintentar en loop.
-        await db.cola.update(item.id, { estado: "error", error_msg: error.message });
-      } else {
-        await db.cola.delete(item.id);
+    // Loop: si encolar() corre durante un drenado, su trigger muere en el guard
+    // de arriba; releer pendientes antes de soltar el guard levanta esos ítems.
+    // Los fallidos pasan a 'error' (no 'pendiente'), así que el loop termina.
+    for (;;) {
+      const pendientes = await db.cola.where("estado").equals("pendiente").toArray();
+      if (pendientes.length === 0) break;
+      for (const item of pendientes) {
+        const { error } = await supabase
+          .from(item.tabla)
+          // El payload viene tipado desde encolarAsistencia/encolarPersona; acá ya es opaco.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .upsert(item.payload as any, OPCIONES_UPSERT[item.tabla]);
+        if (error) {
+          // Sin red el fetch lanza (catch de abajo); un PostgrestError acá es un
+          // rechazo real (RLS/CHECK): no reintentar en loop.
+          await db.cola.update(item.id, { estado: "error", error_msg: error.message });
+        } else {
+          await db.cola.delete(item.id);
+        }
       }
     }
   } catch {
