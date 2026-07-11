@@ -83,5 +83,27 @@
       falta decidir la interacción — probablemente un botón "crear gasto desde pedido").
 - [ ] Alta de filas de plata desde `/oficina` (hoy solo edición inline, igual que Fase 1).
 
-## Fase 3 — Cronograma + alertas (siguiente)
-- [ ] Etapas, dependencias, vencimientos que disparan avisos. Ver `HANDOFF-fase1-oficina.md`.
+## Fase 3 — Cronograma + alertas ✅ (2026-07-11)
+- [x] **Etapas** (`/oficina/etapas`): tabla editable (orden, nombre, estado, fechas plan/real).
+- [x] **Alertas** (`/oficina/alertas`): vista calculada al momento — vencimientos admin vencidos
+      o en ventana de aviso, ART/seguro de personal (ventana 30 días), pedidos FALTANTE,
+      tareas bloqueadas. Rojas primero, sin tabla de avisos persistida (simplicidad).
+- [ ] UI de dependencias entre tareas (esquema `dependencias_tareas` existe; diferido hasta
+      que haya cronograma real cargado).
+
+## Fase 4 — Dashboards ✅ (2026-07-11)
+- [x] **Resumen** (`/oficina/resumen`, ahora la pestaña de entrada): avance de obra (promedio
+      de tareas), caja (ingresos − gastos), gastado vs presupuesto total, barras de plata por
+      rubro (rojo si pasado), asistencia últimos 7 días en jornales. Barras CSS puras, sin
+      librería de charts.
+
+## Fase 5 — API export ✅ (2026-07-11)
+- [x] `GET /api/export/[tabla]` (JSON) y `?formato=csv` — allow-list de 14 tablas, admin-only,
+      filtro opcional `?obra=<uuid>`. Tablas/columnas en español, listo para Cowork.
+
+## Fase 6 — Pulido (parcial)
+- [x] Compresión de fotos en el cliente antes de guardar/subir (JPEG, lado ≤1600px, calidad
+      0,8; best-effort, ante fallo sube la original). `src/lib/offline/comprimir.ts`.
+- [ ] Multi-obra (`obras_usuarios` + selector) — **bloqueado**: necesita migración nueva
+      aplicada por Demian (`db push` + `gen:types`).
+- [ ] Backups — decidir estrategia (los backups diarios de Supabase quizás alcanzan).
