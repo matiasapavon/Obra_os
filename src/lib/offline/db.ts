@@ -15,8 +15,18 @@ export type AsistenciaRow = Database["public"]["Tables"]["asistencias"]["Row"];
 export type PersonalRow = Database["public"]["Tables"]["personal"]["Row"];
 export type TareaRow = Database["public"]["Tables"]["tareas"]["Row"];
 export type MaterialRow = Database["public"]["Tables"]["materiales"]["Row"];
+export type DiarioRow = Database["public"]["Tables"]["diario_obra"]["Row"];
+export type FotoRow = Database["public"]["Tables"]["fotos"]["Row"];
 // Campo lee pedidos por la vista sin costos (la tabla base es admin-only al SELECT).
 export type PedidoCampoRow = Database["public"]["Views"]["pedidos_materiales_campo"]["Row"];
+
+// El binario de una foto vive local en su propio store (fuera de la cola JSON):
+// se sube a Storage por un canal aparte. id = el id de la foto.
+export interface FotoBlob {
+  id: string;
+  blob: Blob;
+  estado: "pendiente" | "error";
+}
 
 // Ítem de la cola de escrituras. El id es el UUID del PK remoto (lo genera el
 // cliente al capturar): reintentar el upsert nunca duplica.
@@ -38,6 +48,9 @@ const db = new Dexie("obra-os") as Dexie & {
   tareas_hoy: EntityTable<TareaRow, "id">;
   materiales: EntityTable<MaterialRow, "id">;
   pedidos_campo: EntityTable<PedidoCampoRow, "id">;
+  diario_hoy: EntityTable<DiarioRow, "id">;
+  fotos: EntityTable<FotoRow, "id">;
+  fotos_blobs: EntityTable<FotoBlob, "id">;
 };
 
 db.version(1).stores({
@@ -64,6 +77,21 @@ db.version(3).stores({
   tareas_hoy: "id, obra_id",
   materiales: "id, obra_id",
   pedidos_campo: "id, obra_id, material_id",
+});
+
+// v4: agrega el espejo del diario de hoy, el espejo de fotos y el store local de
+// blobs (canal binario). Migración aditiva: se listan TODOS los stores previos
+// (v1 + v2 + v3) más los nuevos.
+db.version(4).stores({
+  cola: "id, estado, tabla",
+  personal: "id, obra_id",
+  asistencias_hoy: "id, personal_id",
+  tareas_hoy: "id, obra_id",
+  materiales: "id, obra_id",
+  pedidos_campo: "id, obra_id, material_id",
+  diario_hoy: "id, obra_id",
+  fotos: "id, diario_id, estado_upload",
+  fotos_blobs: "id, estado",
 });
 
 export { db };
