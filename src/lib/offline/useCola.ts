@@ -3,7 +3,8 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
-import { escucharReconexion } from "./sync";
+import { alDrenar, escucharReconexion } from "./sync";
+import { subirFotosPendientes } from "./fotos";
 
 // Fuente externa: los eventos online/offline del navegador.
 function suscribir(alCambiar: () => void) {
@@ -27,6 +28,11 @@ export function useCola() {
 
   useEffect(() => {
     escucharReconexion();
+    // Canal binario de fotos: se dispara tras cada drenado (que a su vez corre en
+    // online/visibilitychange), y un intento inicial al montar por si quedaron
+    // fotos pendientes de una sesión previa.
+    alDrenar(subirFotosPendientes);
+    void subirFotosPendientes();
   }, []);
 
   const pendientes =
