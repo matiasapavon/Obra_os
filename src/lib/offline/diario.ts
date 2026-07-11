@@ -1,6 +1,7 @@
 import { db, type DiarioRow, type FotoRow } from "./db";
 import { encolar } from "./sync";
 import { subirFotosPendientes } from "./fotos";
+import { comprimirFoto } from "./comprimir";
 import { fechaHoyISO } from "@/lib/format";
 
 /**
@@ -61,7 +62,8 @@ export async function guardarNota(
       deleted_at: null,
     };
     await db.fotos.put(foto);
-    await db.fotos_blobs.put({ id: fotoId, blob: fotoBlob, estado: "pendiente" });
+    const comprimida = await comprimirFoto(fotoBlob);
+    await db.fotos_blobs.put({ id: fotoId, blob: comprimida, estado: "pendiente" });
     // estado_upload='pendiente' obligatorio: el CHECK prohíbe 'subida' con url null.
     await encolar("fotos", {
       id: fotoId,
