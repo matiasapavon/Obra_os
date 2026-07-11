@@ -46,10 +46,14 @@
 - CSP estricta: frágil con Turbopack; solo `frame-ancestors 'none'` por ahora.
 - `asistencias.hora_*` queda `time` sin tz: un huso, y `captured_at` da el instante real.
 
-## Fase 1 — Núcleo de campo (siguiente)
-- [ ] Pantalla HOY (home mobile en `/campo`) + flujo de asistencia (arrancar por acá — hábito diario).
-- [ ] Cola offline en IndexedDB (Dexie) + indicador de "cargas pendientes" + sync al reconectar.
-      Convenciones ya definidas en `ARCHITECTURE.md` (UUID cliente, upsert idempotente, captured_at).
+## Fase 1 — Núcleo de campo (en curso)
+- [x] Cola offline en IndexedDB (Dexie) + chip de estado + sync al reconectar (`src/lib/offline/`).
+      Idempotente (UUID cliente, upsert `do update`/`do nothing`), re-drena capturas entrantes.
+- [x] Pantalla HOY (home mobile en `/campo`) + flujo de asistencia (`/campo/asistencia`):
+      1 tap cicla presente→medio→ausente→presente, alta de persona con solo nombre, obra activa
+      automática. Verificado: typecheck, lint y build verdes.
+- [ ] **Prueba manual offline end-to-end** (DevTools offline → marcar → recargar → reconectar →
+      verificar filas en Supabase con `created_offline`/`captured_at`). Requiere correr la app.
 - [ ] Tareas del día (avance con slider), materiales (FALTA/LLEGÓ), nota + foto al diario.
 - [ ] Vistas de tabla desktop en `/oficina` para las mismas entidades (edición inline).
 - [ ] Gating por rol en `/campo` y `/oficina` (cuando exista el capataz).

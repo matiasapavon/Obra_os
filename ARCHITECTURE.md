@@ -94,6 +94,14 @@ de fecha validados por CHECK; índices en todas las FKs y columnas de filtro.
 - **`personal.obra_id`** vincula cada persona a su obra para el flujo de asistencia ("quién
   trabaja acá hoy"). La tabla puente multi-obra se difiere hasta que exista el caso real.
 
+Implementación (Fase 1, tramo asistencia): `src/lib/offline/` — `db.ts` (Dexie: cola de
+escrituras + espejo local `personal`/`asistencias_hoy`), `sync.ts` (drenado con `upsert`
+idempotente; `do update` en asistencias para permitir correcciones de tap, `do nothing` en
+inserts puros como `personal`; re-drena si entran capturas durante el sync), `asistencia.ts`
+(dominio: ciclo presente→medio→ausente→presente, alta de persona, hidratación del espejo),
+`useCola.ts` + `components/ChipSync.tsx` (indicador de estado). La fecha "hoy" la da
+`fechaHoyISO()` (zona AR) en `src/lib/format.ts`, compartida por cliente y server.
+
 ## Convenciones de UI (handoff §6)
 
 - **Mobile = capturar. Desktop = gestionar y entender.** No se mezclan.
