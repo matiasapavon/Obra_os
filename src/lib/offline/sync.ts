@@ -6,6 +6,10 @@ import { db, type ItemCola, type TablaSincronizable } from "./db";
 const OPCIONES_UPSERT: Record<TablaSincronizable, { ignoreDuplicates: boolean }> = {
   asistencias: { ignoreDuplicates: false },
   personal: { ignoreDuplicates: true },
+  tareas: { ignoreDuplicates: false },
+  pedidos_materiales: { ignoreDuplicates: false },
+  diario_obra: { ignoreDuplicates: false },
+  fotos: { ignoreDuplicates: false },
 };
 
 let sincronizando = false;
@@ -37,7 +41,12 @@ export async function sincronizar(): Promise<void> {
     // de arriba; releer pendientes antes de soltar el guard levanta esos ítems.
     // Los fallidos pasan a 'error' (no 'pendiente'), así que el loop termina.
     for (;;) {
-      const pendientes = await db.cola.where("estado").equals("pendiente").toArray();
+      // Orden por captura: garantiza FK safety cuando un tramo encola padre→hijo
+      // (p. ej. diario_obra antes que su foto).
+      const pendientes = await db.cola
+        .where("estado")
+        .equals("pendiente")
+        .sortBy("capturado_en");
       if (pendientes.length === 0) break;
       for (const item of pendientes) {
         const { error } = await supabase
