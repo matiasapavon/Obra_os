@@ -16,6 +16,7 @@ export default function CeldaEditable({
   valor,
   tipo = "text",
   opciones,
+  tono,
 }: {
   tabla: string;
   id: string;
@@ -23,6 +24,7 @@ export default function CeldaEditable({
   valor: Valor;
   tipo?: Tipo;
   opciones?: { value: string; label: string }[];
+  tono?: "warn" | "alert";
 }) {
   const [editando, setEditando] = useState(false);
   const [error, setError] = useState(false);
@@ -93,7 +95,13 @@ export default function CeldaEditable({
         className={`cursor-pointer px-3 py-1.5 align-middle ${
           tipo === "money" || tipo === "number" ? "text-right tabular-nums" : ""
         } ${pending ? "opacity-50" : ""} ${
-          error ? "bg-alert/10 text-alert" : "hover:bg-brand/5"
+          error
+            ? "bg-alert/10 text-alert"
+            : tono === "alert"
+              ? "bg-alert/10 text-alert hover:bg-alert/20"
+              : tono === "warn"
+                ? "bg-warn/10 text-warn hover:bg-warn/20"
+                : "hover:bg-brand/5"
         }`}
       >
         <span className="inline-flex min-h-8 items-center">{display()}</span>
