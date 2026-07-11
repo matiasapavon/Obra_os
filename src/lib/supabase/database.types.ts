@@ -824,6 +824,44 @@ export type Database = {
         }
         Relationships: []
       }
+      obras_usuarios: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          obra_id: string
+          rol_obra: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          obra_id: string
+          rol_obra?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          obra_id?: string
+          rol_obra?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obras_usuarios_obra_id_fkey"
+            columns: ["obra_id"]
+            isOneToOne: false
+            referencedRelation: "obras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedidos_materiales: {
         Row: {
           cantidad: number | null
