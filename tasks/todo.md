@@ -33,11 +33,14 @@
 - [x] Verificado: lint, typecheck y build de producción verdes; dry-run de migraciones OK.
 
 ### Pendiente — necesita a Demian ⏳
-- [ ] **`npx supabase db push`** — aplicar las 3 migraciones nuevas (dry-run ya validado).
+- [x] **`npx supabase db push`** — las 3 de hardening ya estaban aplicadas en el remoto pero sin
+      registrar; se reconciliaron con `migration repair` y se aplicó la 004 (multi-obra). Historial
+      remoto ahora al día (2026-07-11).
+- [x] **`npm run gen:types`** — regenerado; incluye `obras_usuarios`.
 - [ ] **[Dashboard Supabase]** Authentication → deshabilitar "Allow new users to sign up".
 - [ ] **[Dashboard Supabase]** Verificar que el usuario de Mati tiene `role='admin'` en `profiles`.
-- [ ] **Después del push:** `npm run gen:types` y tipar los 3 clientes de `src/lib/supabase/`
-      con `<Database>` (client.ts, server.ts, middleware.ts).
+- [ ] Tipar los 3 clientes de `src/lib/supabase/` con `<Database>` (client.ts, server.ts,
+      middleware.ts) — opcional, mejora el tipado end-to-end.
 - [ ] Verificar RLS con roles simulados en el SQL Editor (ver plan de la sesión 2026-07-11).
 - [ ] Decidir si versionar `HANDOFF-obra-os.md` en el repo (hoy solo está en el escritorio).
 
