@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// La oficina abre siempre en la primera pestaña (Tareas).
+// La oficina abre siempre en la primera pestaña (Resumen).
 export default function OficinaPage() {
-  redirect("/oficina/tareas");
+  redirect("/oficina/resumen");
 }
