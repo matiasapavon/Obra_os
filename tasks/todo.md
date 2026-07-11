@@ -46,14 +46,22 @@
 - CSP estricta: frágil con Turbopack; solo `frame-ancestors 'none'` por ahora.
 - `asistencias.hora_*` queda `time` sin tz: un huso, y `captured_at` da el instante real.
 
-## Fase 1 — Núcleo de campo (en curso)
+## Fase 1 — Núcleo de campo (tramos de captura ✅, falta desktop)
 - [x] Cola offline en IndexedDB (Dexie) + chip de estado + sync al reconectar (`src/lib/offline/`).
-      Idempotente (UUID cliente, upsert `do update`/`do nothing`), re-drena capturas entrantes.
-- [x] Pantalla HOY (home mobile en `/campo`) + flujo de asistencia (`/campo/asistencia`):
-      1 tap cicla presente→medio→ausente→presente, alta de persona con solo nombre, obra activa
-      automática. Verificado: typecheck, lint y build verdes.
-- [ ] **Prueba manual offline end-to-end** (DevTools offline → marcar → recargar → reconectar →
-      verificar filas en Supabase con `created_offline`/`captured_at`). Requiere correr la app.
-- [ ] Tareas del día (avance con slider), materiales (FALTA/LLEGÓ), nota + foto al diario.
+      Idempotente (UUID cliente, upsert `do update`/`do nothing`), re-drena capturas entrantes,
+      drenado ordenado por `capturado_en` (FK diario→foto).
+- [x] Home HOY (`/campo`) con nav a las 4 pantallas + resumen de asistencia.
+- [x] **Asistencia** (`/campo/asistencia`): 1 tap cicla presente→medio→ausente→presente, alta de
+      persona con solo nombre, obra activa automática.
+- [x] **Tareas** (`/campo/tareas`): slider de avance 0/25/50/75/100 → estado derivado.
+- [x] **Materiales** (`/campo/materiales`): FALTA/LLEGÓ sobre `pedidos_materiales` (lee por la vista
+      `pedidos_materiales_campo`, sin costos), alta con unidad validada por chips.
+- [x] **Diario** (`/campo/diario`): nota de texto + foto opcional; sync en dos canales (fila JSON
+      por la cola, binario como Blob en IndexedDB + uploader a Storage diferido).
+- [x] Verificado en cada tramo: typecheck, lint y build verdes; cada tramo revisado por subagente.
+- [ ] **[Dashboard Supabase]** Crear bucket de Storage `fotos-obra` con policies insert/select para
+      `authenticated`. Sin esto, las notas del diario sincronizan pero las fotos quedan en `error`.
+- [ ] **Prueba manual offline end-to-end** (DevTools offline → capturar en las 4 pantallas →
+      recargar → reconectar → verificar filas en Supabase con `created_offline`/`captured_at`).
 - [ ] Vistas de tabla desktop en `/oficina` para las mismas entidades (edición inline).
 - [ ] Gating por rol en `/campo` y `/oficina` (cuando exista el capataz).

@@ -94,13 +94,19 @@ de fecha validados por CHECK; índices en todas las FKs y columnas de filtro.
 - **`personal.obra_id`** vincula cada persona a su obra para el flujo de asistencia ("quién
   trabaja acá hoy"). La tabla puente multi-obra se difiere hasta que exista el caso real.
 
-Implementación (Fase 1, tramo asistencia): `src/lib/offline/` — `db.ts` (Dexie: cola de
-escrituras + espejo local `personal`/`asistencias_hoy`), `sync.ts` (drenado con `upsert`
-idempotente; `do update` en asistencias para permitir correcciones de tap, `do nothing` en
-inserts puros como `personal`; re-drena si entran capturas durante el sync), `asistencia.ts`
-(dominio: ciclo presente→medio→ausente→presente, alta de persona, hidratación del espejo),
-`useCola.ts` + `components/ChipSync.tsx` (indicador de estado). La fecha "hoy" la da
-`fechaHoyISO()` (zona AR) en `src/lib/format.ts`, compartida por cliente y server.
+Implementación (Fase 1): `src/lib/offline/` — `db.ts` (Dexie, esquema versionado v1→v4: cola de
+escrituras + espejos `personal`/`asistencias_hoy`/`tareas_hoy`/`materiales`/`pedidos_campo`/
+`diario_hoy`/`fotos` + store de binarios `fotos_blobs`), `sync.ts` (drenado ordenado por
+`capturado_en` con `upsert` idempotente; `do update` para correcciones, `do nothing` en inserts
+puros; re-drena si entran capturas durante el sync; registro `alDrenar` para hooks post-drenado),
+y un módulo de dominio por tramo: `asistencia.ts` (ciclo presente→medio→ausente→presente),
+`tareas.ts` (avance→estado), `materiales.ts` (FALTA/LLEGÓ sobre `pedidos_materiales`, lee por la
+vista campo sin costos), `diario.ts` + `fotos.ts` (nota por la cola, foto en dos canales: fila
+JSON primero, binario Blob→Storage después vía `subirFotosPendientes`). `useCola.ts` +
+`components/ChipSync.tsx` = indicador de estado. La fecha "hoy" la da `fechaHoyISO()` (zona AR) en
+`src/lib/format.ts`, compartida por cliente y server. Las fotos requieren un bucket de Storage
+`fotos-obra` (config de Dashboard, pendiente); sin él, la nota sincroniza y el binario queda en
+`estado_upload = 'error'` hasta que exista.
 
 ## Convenciones de UI (handoff §6)
 

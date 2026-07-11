@@ -38,7 +38,7 @@ export default async function CampoPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+    <div className="mx-auto flex max-w-md flex-col gap-3 px-4 py-6">
       <h1 className="text-2xl font-bold text-ink">
         HOY{obra && <span className="ml-2 text-base font-normal text-muted">{obra.nombre}</span>}
       </h1>
@@ -48,23 +48,42 @@ export default async function CampoPage() {
           No hay ninguna obra activa. Creala desde la oficina.
         </p>
       ) : (
-        <Link
-          href="/campo/asistencia"
-          className="flex min-h-20 items-center justify-between rounded-2xl border-2 border-brand/40 bg-brand/5 px-5"
-        >
-          <div className="flex flex-col">
-            <span className="text-lg font-bold text-ink">Asistencia</span>
-            <span className="text-sm text-muted">
-              {presentes} de {total} marcados hoy
-            </span>
-          </div>
-          <span className="text-2xl text-brand">→</span>
-        </Link>
-      )}
+        <>
+          <Link
+            href="/campo/asistencia"
+            className="flex min-h-20 items-center justify-between rounded-2xl border-2 border-brand/40 bg-brand/5 px-5"
+          >
+            <div className="flex flex-col">
+              <span className="text-lg font-bold text-ink">Asistencia</span>
+              <span className="text-sm text-muted">
+                {presentes} de {total} marcados hoy
+              </span>
+            </div>
+            <span className="text-2xl text-brand">→</span>
+          </Link>
 
-      <p className="text-center text-sm text-muted">
-        Tareas, materiales y diario llegan en los próximos tramos.
-      </p>
+          {[
+            { href: "/campo/tareas", emoji: "🔨", titulo: "Tareas", sub: "Avance del día" },
+            { href: "/campo/materiales", emoji: "📦", titulo: "Materiales", sub: "Falta / llegó" },
+            { href: "/campo/diario", emoji: "📝", titulo: "Diario", sub: "Nota y foto" },
+          ].map((c) => (
+            <Link
+              key={c.href}
+              href={c.href}
+              className="flex min-h-16 items-center justify-between rounded-2xl border-2 border-black/10 px-5"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{c.emoji}</span>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-ink">{c.titulo}</span>
+                  <span className="text-sm text-muted">{c.sub}</span>
+                </div>
+              </div>
+              <span className="text-2xl text-brand">→</span>
+            </Link>
+          ))}
+        </>
+      )}
     </div>
   );
 }
