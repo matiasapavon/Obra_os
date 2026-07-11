@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { obraActiva, listarObras } from "@/lib/oficina/obra";
 import OficinaNav from "./OficinaNav";
+import SelectorObra from "./SelectorObra";
 
 // Superficie desktop: gestionar y entender. Gate admin acá (la plata SOLO en
 // desktop y solo admin; campo nunca entra a /oficina). Igual que en el resto de
@@ -26,22 +28,22 @@ export default async function OficinaLayout({
 
   if (profile?.role !== "admin") redirect("/campo");
 
-  // Obra activa una sola vez para el header. Sin obra igual se muestra el shell.
-  const { data: obra } = await supabase
-    .from("obras")
-    .select("id, nombre")
-    .eq("estado", "activa")
-    .is("deleted_at", null)
-    .limit(1)
-    .maybeSingle();
+  // Obra en foco + lista para el selector (una sola vez, para el header).
+  const [obra, obras] = await Promise.all([
+    obraActiva(supabase),
+    listarObras(supabase),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-6">
-      <header className="mb-4 flex flex-col gap-0.5">
-        <span className="text-sm font-semibold text-muted">Oficina</span>
-        <h1 className="text-2xl font-bold text-ink">
-          {obra ? obra.nombre : "No hay ninguna obra activa"}
-        </h1>
+      <header className="mb-4 flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-sm font-semibold text-muted">Oficina</span>
+          <h1 className="text-2xl font-bold text-ink">
+            {obra ? obra.nombre : "No hay ninguna obra activa"}
+          </h1>
+        </div>
+        <SelectorObra obras={obras} actual={obra?.id ?? null} />
       </header>
       <OficinaNav />
       <div className="mt-4">{children}</div>
