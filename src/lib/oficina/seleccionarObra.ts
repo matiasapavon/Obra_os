@@ -7,8 +7,9 @@ import { COOKIE_OBRA } from "./obra";
 
 const UN_ANIO = 60 * 60 * 24 * 365;
 
-// Setea la obra en foco de la oficina (cookie) y revalida todo el árbol de
-// /oficina. Admin-only: mismo re-chequeo que el resto de los server actions.
+// Setea la obra en foco (cookie) y revalida /oficina y /campo. Cualquier
+// usuario autenticado puede elegir su obra: la cookie es personal y solo
+// cambia qué obra ve ÉL; qué obras puede ver lo decide RLS, no esto.
 export async function seleccionarObra(
   obraId: string,
 ): Promise<{ ok: boolean; error?: string }> {
@@ -18,12 +19,6 @@ export async function seleccionarObra(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "No autenticado" };
-  const { data: perfil } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (perfil?.role !== "admin") return { ok: false, error: "No autorizado" };
 
   // Validar que la obra existe y no está borrada antes de fijarla.
   const { data: obra } = await supabase
@@ -43,5 +38,6 @@ export async function seleccionarObra(
   });
 
   revalidatePath("/oficina", "layout");
+  revalidatePath("/campo", "layout");
   return { ok: true };
 }

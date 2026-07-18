@@ -12,6 +12,7 @@ import {
   faltanteAbierto,
 } from "@/lib/offline/materiales";
 import ChipSync from "@/components/ChipSync";
+import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
 // Estado visible del material según su último pedido. Semántica de color fija.
@@ -46,10 +47,12 @@ const UNIDADES: { token: UnidadValida; etiqueta: string }[] = [
 
 export default function MaterialesClient({
   obraId,
+  etapaId,
   materialesServidor,
   pedidosServidor,
 }: {
   obraId: string;
+  etapaId: string;
   materialesServidor: MaterialRow[];
   pedidosServidor: PedidoCampoRow[];
 }) {
@@ -76,7 +79,7 @@ export default function MaterialesClient({
   );
 
   async function onFalta(material: MaterialRow) {
-    await marcarFalta(obraId, material.id);
+    await marcarFalta(obraId, etapaId, material.id);
   }
 
   async function onLlego(pedido: PedidoCampoRow) {
@@ -98,9 +101,12 @@ export default function MaterialesClient({
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3 px-4 py-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-ink">
-          Materiales · {formatFechaCorta(new Date())}
-        </h1>
+        <div className="flex items-center gap-1">
+          <VolverCampo href={`/campo/etapa/${etapaId}`} />
+          <h1 className="text-xl font-bold text-ink">
+            Materiales · {formatFechaCorta(new Date())}
+          </h1>
+        </div>
         <ChipSync />
       </div>
 

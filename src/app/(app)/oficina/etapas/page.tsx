@@ -16,6 +16,7 @@ const COLS: ColumnaOficina[] = [
   { key: "orden", label: "Orden", alinear: "right" },
   { key: "nombre", label: "Etapa" },
   { key: "estado", label: "Estado" },
+  { key: "gremio", label: "Gremio" },
   { key: "fecha_inicio_plan", label: "Inicio plan" },
   { key: "fecha_fin_plan", label: "Fin plan" },
   { key: "fecha_inicio_real", label: "Inicio real" },
@@ -29,13 +30,25 @@ export default async function EtapasPage() {
     return <p className="py-8 text-muted">No hay ninguna obra activa.</p>;
   }
 
-  const { data: etapas } = await supabase
-    .from("etapas")
-    .select("*")
-    .eq("obra_id", obra.id)
-    .order("orden", { ascending: true });
+  const [{ data: etapas }, { data: gremios }] = await Promise.all([
+    supabase
+      .from("etapas")
+      .select("*")
+      .eq("obra_id", obra.id)
+      .order("orden", { ascending: true }),
+    supabase
+      .from("gremios")
+      .select("id, nombre")
+      .is("deleted_at", null)
+      .order("nombre", { ascending: true }),
+  ]);
 
   const filas = etapas ?? [];
+  // Opciones del select de gremio: primero "sin asignar" (value vacío → null).
+  const opcionesGremio = [
+    { value: "", label: "— Sin asignar" },
+    ...(gremios ?? []).map((g) => ({ value: g.id, label: g.nombre })),
+  ];
 
   return (
     <section>
@@ -79,6 +92,14 @@ export default async function EtapasPage() {
               valor={e.estado}
               tipo="select"
               opciones={ESTADOS}
+            />
+            <CeldaEditable
+              tabla="etapas"
+              id={e.id}
+              columna="gremio_id"
+              valor={e.gremio_id}
+              tipo="select"
+              opciones={opcionesGremio}
             />
             <CeldaEditable
               tabla="etapas"

@@ -66,12 +66,17 @@ export async function altaMaterial(
  * (RLS exige costo_estimado/costo_real/gasto_id null). El espejo local usa la
  * forma de la vista `pedidos_materiales_campo`.
  */
-export async function marcarFalta(obraId: string, materialId: string): Promise<void> {
+export async function marcarFalta(
+  obraId: string,
+  etapaId: string,
+  materialId: string,
+): Promise<void> {
   const id = crypto.randomUUID();
   const ahora = new Date().toISOString();
   const fila: PedidoCampoRow = {
     id,
     obra_id: obraId,
+    etapa_id: etapaId,
     material_id: materialId,
     estado: "faltante",
     cantidad: null,
@@ -89,6 +94,7 @@ export async function marcarFalta(obraId: string, materialId: string): Promise<v
   await encolar("pedidos_materiales", {
     id,
     obra_id: obraId,
+    etapa_id: etapaId,
     material_id: materialId,
     estado: "faltante",
     created_offline: true,

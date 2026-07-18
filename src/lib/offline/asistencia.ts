@@ -25,6 +25,7 @@ export function estadoDeFila(fila: AsistenciaRow | undefined): EstadoAsistencia 
  */
 export async function marcarAsistencia(
   obraId: string,
+  etapaId: string,
   personalId: string,
   estado: EstadoAsistencia,
   filaPrevia: AsistenciaRow | undefined,
@@ -37,6 +38,7 @@ export async function marcarAsistencia(
   const fila: AsistenciaRow = {
     id,
     obra_id: obraId,
+    etapa_id: etapaId,
     personal_id: personalId,
     fecha: filaPrevia?.fecha ?? fechaHoyISO(),
     medio_dia: estado === "medio",
@@ -56,6 +58,7 @@ export async function marcarAsistencia(
   await encolar("asistencias", {
     id: fila.id,
     obra_id: fila.obra_id,
+    etapa_id: fila.etapa_id,
     personal_id: fila.personal_id,
     fecha: fila.fecha,
     medio_dia: fila.medio_dia,

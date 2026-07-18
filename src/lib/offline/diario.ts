@@ -12,6 +12,7 @@ import { fechaHoyISO } from "@/lib/format";
  */
 export async function guardarNota(
   obraId: string,
+  etapaId: string,
   texto: string,
   fotoBlob?: Blob,
 ): Promise<void> {
@@ -22,6 +23,7 @@ export async function guardarNota(
   const diario: DiarioRow = {
     id,
     obra_id: obraId,
+    etapa_id: etapaId,
     texto: texto || null,
     clima: null,
     etiquetas: [],
@@ -36,6 +38,7 @@ export async function guardarNota(
   await encolar("diario_obra", {
     id,
     obra_id: obraId,
+    etapa_id: etapaId,
     texto: texto || null,
     fecha: hoy,
     captured_at: ahora,

@@ -9,9 +9,11 @@ import { fechaHoyISO } from "@/lib/format";
 // descarta del payload — evita que un POST armado escriba columnas arbitrarias.
 // obra_id NO figura: lo inyecta el server desde la obra en foco.
 const INSERTABLES: Record<string, readonly string[]> = {
+  obras: ["nombre", "cliente", "direccion"],
   personal: ["nombre", "rol", "telefono"],
   tareas: ["nombre", "descripcion", "ubicacion"],
   etapas: ["nombre", "orden"],
+  gremios: ["nombre", "especialidad", "forma_pago", "contacto_nombre", "telefono", "email"],
   rubros: ["nombre", "presupuesto_base"],
   gastos: ["concepto", "monto", "rubro_id", "fecha", "tipo", "medio_pago", "moneda"],
   compromisos: ["concepto", "monto_total", "fecha_estimada_pago", "rubro_id"],
@@ -20,8 +22,9 @@ const INSERTABLES: Record<string, readonly string[]> = {
   vencimientos_admin: ["tipo", "fecha_vencimiento", "descripcion", "responsable"],
 };
 
-// Tablas que no cuelgan de una obra (personal es global al estudio).
-const SIN_OBRA = new Set(["personal"]);
+// Tablas que no cuelgan de una obra (personal y gremios son globales al estudio;
+// obras ES la obra). Los gremios se reutilizan entre obras.
+const SIN_OBRA = new Set(["personal", "obras", "gremios"]);
 
 // Tablas con `fecha date default current_date`: ese default corre en UTC en la
 // base, así que un alta de noche en Argentina caería un día adelantada. Cuando
@@ -99,6 +102,11 @@ export async function crearFila(
     .insert(payload);
   if (error) return { ok: false, error: error.message };
 
-  revalidatePath(`/oficina/${RUTA[tabla] ?? tabla}`);
+  if (tabla === "obras") {
+    // La obra nueva aparece en el selector del header, que vive en el layout.
+    revalidatePath("/oficina", "layout");
+  } else {
+    revalidatePath(`/oficina/${RUTA[tabla] ?? tabla}`);
+  }
   return { ok: true };
 }

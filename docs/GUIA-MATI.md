@@ -21,12 +21,11 @@ Regla de oro: **en obra capturás, en oficina gestionás**. Cada dato se carga u
 
 ---
 
-## 2. Primer día: entrar e instalar
+## 2. Primer día: entrar
 
 1. Entrá a la app desde el navegador del celular con tu mail y contraseña.
-2. **Instalala como app**: en Chrome (Android) tocá el menú ⋮ → "Agregar a pantalla de
-   inicio" / "Instalar app". En iPhone: botón compartir → "Agregar a inicio".
-   Queda con ícono propio, pantalla completa, como cualquier app.
+2. **Guardala en favoritos** (o dejá la pestaña abierta) para tenerla a un toque.
+   La sesión queda iniciada; no hace falta loguearse cada vez.
 3. En la PC, entrá con el mismo usuario: vas a caer en la **Oficina**.
 
 ---
@@ -34,7 +33,13 @@ Regla de oro: **en obra capturás, en oficina gestionás**. Cada dato se carga u
 ## 3. Campo: el día a día en obra (celular)
 
 La pantalla **HOY** tiene 4 botones grandes. La idea es que cada carga te lleve
-**3 toques o menos**.
+**3 toques o menos**. En cada pantalla, la flecha **←** de arriba a la izquierda
+te vuelve a HOY.
+
+**¿Trabajás en más de una obra?** Arriba de todo en HOY hay un selector: elegí la
+obra en la que estás parado y todo lo que cargues va a esa obra. Si el mismo día
+vas a otra obra, cambiás el selector y seguís. (Cambiar de obra necesita señal;
+sin señal seguís cargando en la última que elegiste.)
 
 ### Asistencia
 - Tocá el nombre de una persona y va ciclando: **Presente → Medio día → Ausente**.

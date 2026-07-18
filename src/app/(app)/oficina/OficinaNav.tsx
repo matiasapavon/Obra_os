@@ -10,6 +10,7 @@ const TABS = [
   { href: "/oficina/tareas", label: "Tareas" },
   { href: "/oficina/etapas", label: "Etapas" },
   { href: "/oficina/materiales", label: "Materiales" },
+  { href: "/oficina/gremios", label: "Gremios" },
   { href: "/oficina/personal", label: "Personal" },
   { href: "/oficina/asistencias", label: "Asistencias" },
   { href: "/oficina/diario", label: "Diario" },

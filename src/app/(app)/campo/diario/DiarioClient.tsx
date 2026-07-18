@@ -5,6 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db, type DiarioRow } from "@/lib/offline/db";
 import { guardarNota, hidratarDiario } from "@/lib/offline/diario";
 import ChipSync from "@/components/ChipSync";
+import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
 /** "14:35" en hora de Argentina, a partir de un ISO. */
@@ -19,9 +20,11 @@ function formatHora(iso: string): string {
 
 export default function DiarioClient({
   obraId,
+  etapaId,
   diariosServidor,
 }: {
   obraId: string;
+  etapaId: string;
   diariosServidor: DiarioRow[];
 }) {
   const [texto, setTexto] = useState("");
@@ -36,8 +39,14 @@ export default function DiarioClient({
 
   // La UI SIEMPRE lee del espejo: una sola fuente de verdad local.
   const notas = useLiveQuery(
-    () => db.diario_hoy.where("obra_id").equals(obraId).reverse().sortBy("captured_at"),
-    [obraId],
+    () =>
+      db.diario_hoy
+        .where("obra_id")
+        .equals(obraId)
+        .filter((n) => n.etapa_id === etapaId)
+        .reverse()
+        .sortBy("captured_at"),
+    [obraId, etapaId],
   );
   const fotos = useLiveQuery(() => db.fotos.toArray(), []);
   const diariosConFoto = useMemo(
@@ -62,7 +71,7 @@ export default function DiarioClient({
     if (!t && !foto) return; // nada que guardar
     setGuardando(true);
     try {
-      await guardarNota(obraId, t, foto ?? undefined);
+      await guardarNota(obraId, etapaId, t, foto ?? undefined);
       setTexto("");
       setFoto(null);
     } finally {
@@ -73,9 +82,12 @@ export default function DiarioClient({
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3 px-4 py-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-ink">
-          Diario · {formatFechaCorta(new Date())}
-        </h1>
+        <div className="flex items-center gap-1">
+          <VolverCampo href={`/campo/etapa/${etapaId}`} />
+          <h1 className="text-xl font-bold text-ink">
+            Diario · {formatFechaCorta(new Date())}
+          </h1>
+        </div>
         <ChipSync />
       </div>
 

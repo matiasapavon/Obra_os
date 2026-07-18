@@ -5,6 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db, type TareaRow } from "@/lib/offline/db";
 import { marcarAvance, hidratarTareas } from "@/lib/offline/tareas";
 import ChipSync from "@/components/ChipSync";
+import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
 const ESTILO: Record<string, { clase: string; etiqueta: string }> = {
@@ -16,9 +17,11 @@ const ESTILO: Record<string, { clase: string; etiqueta: string }> = {
 
 export default function TareasClient({
   obraId,
+  etapaId,
   tareasServidor,
 }: {
   obraId: string;
+  etapaId: string;
   tareasServidor: TareaRow[];
 }) {
   // Espejar los datos del server en Dexie (solo si llegaron: sin red la página
@@ -29,18 +32,27 @@ export default function TareasClient({
     }
   }, [tareasServidor]);
 
-  // La UI SIEMPRE lee del espejo: una sola fuente de verdad local.
+  // La UI SIEMPRE lee del espejo: una sola fuente de verdad local. Filtra a las
+  // tareas de esta etapa (el espejo guarda todas las de la obra).
   const tareas = useLiveQuery(
-    () => db.tareas_hoy.where("obra_id").equals(obraId).sortBy("orden"),
-    [obraId],
+    () =>
+      db.tareas_hoy
+        .where("obra_id")
+        .equals(obraId)
+        .filter((t) => t.etapa_id === etapaId)
+        .sortBy("orden"),
+    [obraId, etapaId],
   );
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3 px-4 py-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-ink">
-          Tareas · {formatFechaCorta(new Date())}
-        </h1>
+        <div className="flex items-center gap-1">
+          <VolverCampo href={`/campo/etapa/${etapaId}`} />
+          <h1 className="text-xl font-bold text-ink">
+            Tareas · {formatFechaCorta(new Date())}
+          </h1>
+        </div>
         <ChipSync />
       </div>
 

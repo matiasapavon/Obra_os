@@ -12,6 +12,7 @@ import {
   type EstadoAsistencia,
 } from "@/lib/offline/asistencia";
 import ChipSync from "@/components/ChipSync";
+import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
 const ESTILO: Record<EstadoAsistencia, { clase: string; etiqueta: string }> = {
@@ -23,10 +24,12 @@ const ESTILO: Record<EstadoAsistencia, { clase: string; etiqueta: string }> = {
 
 export default function AsistenciaClient({
   obraId,
+  etapaId,
   personalServidor,
   asistenciasServidor,
 }: {
   obraId: string;
+  etapaId: string;
   personalServidor: PersonalRow[];
   asistenciasServidor: AsistenciaRow[];
 }) {
@@ -55,7 +58,7 @@ export default function AsistenciaClient({
   async function onTap(persona: PersonalRow) {
     const fila = filaDe(persona.id);
     const siguiente = SIGUIENTE_ESTADO[estadoDeFila(fila)];
-    await marcarAsistencia(obraId, persona.id, siguiente, fila);
+    await marcarAsistencia(obraId, etapaId, persona.id, siguiente, fila);
   }
 
   async function onAlta(e: React.FormEvent) {
@@ -71,9 +74,12 @@ export default function AsistenciaClient({
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3 px-4 py-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-ink">
-          Asistencia · {formatFechaCorta(new Date())}
-        </h1>
+        <div className="flex items-center gap-1">
+          <VolverCampo href={`/campo/etapa/${etapaId}`} />
+          <h1 className="text-xl font-bold text-ink">
+            Asistencia · {formatFechaCorta(new Date())}
+          </h1>
+        </div>
         <ChipSync />
       </div>
 

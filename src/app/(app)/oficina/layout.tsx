@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { obraActiva, listarObras } from "@/lib/oficina/obra";
 import OficinaNav from "./OficinaNav";
 import SelectorObra from "./SelectorObra";
+import FormAlta from "@/components/oficina/FormAlta";
 
 // Superficie desktop: gestionar y entender. Gate admin acá (la plata SOLO en
 // desktop y solo admin; campo nunca entra a /oficina). Igual que en el resto de
@@ -38,12 +40,28 @@ export default async function OficinaLayout({
     <div className="mx-auto max-w-6xl px-6 py-6">
       <header className="mb-4 flex items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold text-muted">Oficina</span>
+          <span className="text-sm font-semibold text-muted">
+            Oficina ·{" "}
+            <Link href="/campo" className="font-normal underline-offset-2 hover:underline">
+              ir a campo
+            </Link>
+          </span>
           <h1 className="text-2xl font-bold text-ink">
             {obra ? obra.nombre : "No hay ninguna obra activa"}
           </h1>
         </div>
-        <SelectorObra obras={obras} actual={obra?.id ?? null} />
+        <div className="flex items-start gap-3">
+          <SelectorObra obras={obras} actual={obra?.id ?? null} />
+          <FormAlta
+            tabla="obras"
+            etiqueta="Obra"
+            campos={[
+              { key: "nombre", label: "Nombre", requerido: true },
+              { key: "cliente", label: "Cliente" },
+              { key: "direccion", label: "Dirección" },
+            ]}
+          />
+        </div>
       </header>
       <OficinaNav />
       <div className="mt-4">{children}</div>

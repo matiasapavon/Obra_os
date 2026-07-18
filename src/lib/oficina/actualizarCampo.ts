@@ -23,8 +23,10 @@ const EDITABLES: Record<string, readonly string[]> = {
     "fecha", "notas"],
   vencimientos_admin: ["tipo", "descripcion", "fecha_vencimiento", "alerta_dias_antes",
     "estado", "responsable"],
-  etapas: ["nombre", "estado", "orden", "fecha_inicio_plan", "fecha_fin_plan",
+  etapas: ["nombre", "estado", "orden", "gremio_id", "fecha_inicio_plan", "fecha_fin_plan",
     "fecha_inicio_real", "fecha_fin_real"],
+  gremios: ["nombre", "especialidad", "forma_pago", "contacto_nombre", "telefono",
+    "email", "calificacion", "notas"],
 };
 
 // El pedido se gestiona dentro de la pestaña Materiales; el resto de las tablas

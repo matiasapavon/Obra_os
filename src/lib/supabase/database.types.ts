@@ -107,6 +107,7 @@ export type Database = {
           created_at: string
           created_offline: boolean
           deleted_at: string | null
+          etapa_id: string | null
           fecha: string
           hora_entrada: string | null
           hora_salida: string | null
@@ -122,6 +123,7 @@ export type Database = {
           created_at?: string
           created_offline?: boolean
           deleted_at?: string | null
+          etapa_id?: string | null
           fecha?: string
           hora_entrada?: string | null
           hora_salida?: string | null
@@ -137,6 +139,7 @@ export type Database = {
           created_at?: string
           created_offline?: boolean
           deleted_at?: string | null
+          etapa_id?: string | null
           fecha?: string
           hora_entrada?: string | null
           hora_salida?: string | null
@@ -148,6 +151,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "asistencias_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "asistencias_obra_id_fkey"
             columns: ["obra_id"]
@@ -280,6 +290,7 @@ export type Database = {
           created_at: string
           created_offline: boolean
           deleted_at: string | null
+          etapa_id: string | null
           etiquetas: string[]
           fecha: string
           id: string
@@ -293,6 +304,7 @@ export type Database = {
           created_at?: string
           created_offline?: boolean
           deleted_at?: string | null
+          etapa_id?: string | null
           etiquetas?: string[]
           fecha?: string
           id?: string
@@ -306,6 +318,7 @@ export type Database = {
           created_at?: string
           created_offline?: boolean
           deleted_at?: string | null
+          etapa_id?: string | null
           etiquetas?: string[]
           fecha?: string
           id?: string
@@ -314,6 +327,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "diario_obra_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "diario_obra_obra_id_fkey"
             columns: ["obra_id"]
@@ -332,6 +352,7 @@ export type Database = {
           fecha_fin_real: string | null
           fecha_inicio_plan: string | null
           fecha_inicio_real: string | null
+          gremio_id: string | null
           id: string
           nombre: string
           obra_id: string
@@ -346,6 +367,7 @@ export type Database = {
           fecha_fin_real?: string | null
           fecha_inicio_plan?: string | null
           fecha_inicio_real?: string | null
+          gremio_id?: string | null
           id?: string
           nombre: string
           obra_id: string
@@ -360,6 +382,7 @@ export type Database = {
           fecha_fin_real?: string | null
           fecha_inicio_plan?: string | null
           fecha_inicio_real?: string | null
+          gremio_id?: string | null
           id?: string
           nombre?: string
           obra_id?: string
@@ -367,6 +390,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "etapas_gremio_id_fkey"
+            columns: ["gremio_id"]
+            isOneToOne: false
+            referencedRelation: "gremios"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "etapas_obra_id_fkey"
             columns: ["obra_id"]
@@ -871,6 +901,7 @@ export type Database = {
           created_offline: boolean
           deleted_at: string | null
           estado: string
+          etapa_id: string | null
           fecha_entrega_estimada: string | null
           fecha_entrega_real: string | null
           fecha_necesidad: string | null
@@ -891,6 +922,7 @@ export type Database = {
           created_offline?: boolean
           deleted_at?: string | null
           estado?: string
+          etapa_id?: string | null
           fecha_entrega_estimada?: string | null
           fecha_entrega_real?: string | null
           fecha_necesidad?: string | null
@@ -911,6 +943,7 @@ export type Database = {
           created_offline?: boolean
           deleted_at?: string | null
           estado?: string
+          etapa_id?: string | null
           fecha_entrega_estimada?: string | null
           fecha_entrega_real?: string | null
           fecha_necesidad?: string | null
@@ -924,6 +957,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pedidos_materiales_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pedidos_materiales_gasto_id_fkey"
             columns: ["gasto_id"]
@@ -1285,6 +1325,7 @@ export type Database = {
           created_at: string | null
           created_offline: boolean | null
           estado: string | null
+          etapa_id: string | null
           fecha_entrega_estimada: string | null
           fecha_entrega_real: string | null
           fecha_necesidad: string | null
@@ -1301,6 +1342,7 @@ export type Database = {
           created_at?: string | null
           created_offline?: boolean | null
           estado?: string | null
+          etapa_id?: string | null
           fecha_entrega_estimada?: string | null
           fecha_entrega_real?: string | null
           fecha_necesidad?: string | null
@@ -1317,6 +1359,7 @@ export type Database = {
           created_at?: string | null
           created_offline?: boolean | null
           estado?: string | null
+          etapa_id?: string | null
           fecha_entrega_estimada?: string | null
           fecha_entrega_real?: string | null
           fecha_necesidad?: string | null
@@ -1329,6 +1372,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pedidos_materiales_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pedidos_materiales_material_id_fkey"
             columns: ["material_id"]
@@ -1350,6 +1400,7 @@ export type Database = {
       current_app_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      sembrar_defaults_obra: { Args: { p_obra_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
