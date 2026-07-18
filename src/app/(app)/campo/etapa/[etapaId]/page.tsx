@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { obraActiva } from "@/lib/oficina/obra";
 import { etapaEnFoco } from "@/lib/campo/etapa";
 import VolverCampo from "@/components/VolverCampo";
+import BotonTicket from "./BotonTicket";
 
 // Hub de una etapa: desde acá cuelga toda la carga de campo (asistencia, tareas,
 // materiales, diario), siempre imputada a esta etapa. Nunca muestra dinero.
@@ -40,6 +41,7 @@ export default async function EtapaHubPage({
       .from("tareas")
       .select("porcentaje_avance")
       .eq("etapa_id", etapa.id)
+      .eq("tipo", "obra") // las punch no cuentan para el avance
       .is("deleted_at", null),
   ]);
 
@@ -59,6 +61,7 @@ export default async function EtapaHubPage({
     { href: `${base}/tareas`, emoji: "🔨", titulo: "Tareas", sub: "Avance del día" },
     { href: `${base}/materiales`, emoji: "📦", titulo: "Materiales", sub: "Falta / llegó" },
     { href: `${base}/diario`, emoji: "📝", titulo: "Diario", sub: "Nota y foto" },
+    { href: `${base}/punch`, emoji: "🔧", titulo: "Punch", sub: "Pendientes de cierre" },
   ];
 
   return (
@@ -103,6 +106,8 @@ export default async function EtapaHubPage({
           <span className="text-2xl text-brand">→</span>
         </Link>
       ))}
+
+      <BotonTicket obraId={obra.id} />
     </div>
   );
 }

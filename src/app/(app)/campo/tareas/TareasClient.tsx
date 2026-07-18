@@ -33,13 +33,14 @@ export default function TareasClient({
   }, [tareasServidor]);
 
   // La UI SIEMPRE lee del espejo: una sola fuente de verdad local. Filtra a las
-  // tareas de esta etapa (el espejo guarda todas las de la obra).
+  // tareas de esta etapa (el espejo guarda todas las de la obra); las punch
+  // tienen su propia pantalla.
   const tareas = useLiveQuery(
     () =>
       db.tareas_hoy
         .where("obra_id")
         .equals(obraId)
-        .filter((t) => t.etapa_id === etapaId)
+        .filter((t) => t.etapa_id === etapaId && t.tipo !== "punch")
         .sortBy("orden"),
     [obraId, etapaId],
   );

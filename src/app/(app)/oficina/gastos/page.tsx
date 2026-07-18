@@ -6,6 +6,7 @@ import TablaOficina, {
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
 import FormAlta from "@/components/oficina/FormAlta";
+import BotonGastoDesdeTicket from "@/components/oficina/BotonGastoDesdeTicket";
 
 const TIPOS = [
   { value: "material", label: "Material" },
@@ -48,19 +49,30 @@ export default async function GastosPage() {
     return <p className="py-8 text-muted">No hay ninguna obra activa.</p>;
   }
 
-  const [{ data: gastos }, { data: rubros }] = await Promise.all([
-    supabase
-      .from("gastos")
-      .select("*, gremios(nombre)")
-      .eq("obra_id", obra.id)
-      .order("fecha", { ascending: false }),
-    supabase
-      .from("rubros")
-      .select("id, nombre")
-      .eq("obra_id", obra.id)
-      .is("deleted_at", null)
-      .order("nombre", { ascending: true }),
-  ]);
+  const [{ data: gastos }, { data: rubros }, { data: tickets }] =
+    await Promise.all([
+      supabase
+        .from("gastos")
+        .select("*, gremios(nombre)")
+        .eq("obra_id", obra.id)
+        .order("fecha", { ascending: false }),
+      supabase
+        .from("rubros")
+        .select("id, nombre")
+        .eq("obra_id", obra.id)
+        .is("deleted_at", null)
+        .order("nombre", { ascending: true }),
+      // Tickets de campo sin gasto: pendientes de imputar (subidos) y en
+      // tránsito (todavía sincronizando desde el celular).
+      supabase
+        .from("fotos")
+        .select("id, url, fecha, estado_upload")
+        .eq("obra_id", obra.id)
+        .eq("tipo", "ticket")
+        .is("gasto_id", null)
+        .is("deleted_at", null)
+        .order("fecha", { ascending: false }),
+    ]);
 
   const filas = gastos ?? [];
   const opcionesRubro = (rubros ?? []).map((r) => ({
@@ -71,6 +83,11 @@ export default async function GastosPage() {
     .filter((g) => !g.deleted_at)
     .reduce((acc, g) => acc + g.monto, 0);
 
+  const ticketsSubidos = (tickets ?? []).filter(
+    (t) => t.estado_upload === "subida" && t.url,
+  );
+  const ticketsEnTransito = (tickets ?? []).length - ticketsSubidos.length;
+
   return (
     <section>
       <div className="mb-2 flex items-baseline justify-between">
@@ -79,6 +96,36 @@ export default async function GastosPage() {
           Total: <span className="tabular-nums">{formatARS(totalVisible)}</span>
         </p>
       </div>
+      {(ticketsSubidos.length > 0 || ticketsEnTransito > 0) && (
+        <div className="mb-3 rounded-xl border border-warn/40 bg-warn/5 p-3">
+          <p className="mb-2 text-sm font-semibold text-ink">
+            Tickets de campo pendientes
+            {ticketsEnTransito > 0 && (
+              <span className="ml-2 font-normal text-muted">
+                ({ticketsEnTransito} en tránsito desde el celular)
+              </span>
+            )}
+          </p>
+          {ticketsSubidos.length > 0 && (
+            <ul className="flex flex-wrap gap-3">
+              {ticketsSubidos.map((t) => (
+                <li key={t.id} className="flex flex-col items-center gap-1">
+                  <a href={t.url!} target="_blank" rel="noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={t.url!}
+                      alt="Ticket de campo"
+                      className="h-24 w-24 rounded-lg border border-black/10 object-cover"
+                    />
+                  </a>
+                  <span className="text-xs text-muted">{t.fecha}</span>
+                  <BotonGastoDesdeTicket fotoId={t.id} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       <FormAlta
         tabla="gastos"
         etiqueta="Gasto"

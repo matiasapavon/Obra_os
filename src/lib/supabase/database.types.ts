@@ -47,6 +47,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           descripcion: string
+          diario_id: string | null
           estado: string
           evidencia_url: string | null
           fecha: string
@@ -64,6 +65,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           descripcion: string
+          diario_id?: string | null
           estado?: string
           evidencia_url?: string | null
           fecha?: string
@@ -81,6 +83,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           descripcion?: string
+          diario_id?: string | null
           estado?: string
           evidencia_url?: string | null
           fecha?: string
@@ -92,6 +95,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "adicionales_diario_id_fkey"
+            columns: ["diario_id"]
+            isOneToOne: true
+            referencedRelation: "diario_obra"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "adicionales_obra_id_fkey"
             columns: ["obra_id"]
@@ -415,11 +425,13 @@ export type Database = {
           diario_id: string | null
           estado_upload: string
           fecha: string
+          gasto_id: string | null
           id: string
           obra_id: string
           stock_evento_id: string | null
           tarea_id: string | null
           thumbnail_url: string | null
+          tipo: string
           ubicacion_texto: string | null
           updated_at: string
           url: string | null
@@ -432,11 +444,13 @@ export type Database = {
           diario_id?: string | null
           estado_upload?: string
           fecha?: string
+          gasto_id?: string | null
           id?: string
           obra_id: string
           stock_evento_id?: string | null
           tarea_id?: string | null
           thumbnail_url?: string | null
+          tipo?: string
           ubicacion_texto?: string | null
           updated_at?: string
           url?: string | null
@@ -449,11 +463,13 @@ export type Database = {
           diario_id?: string | null
           estado_upload?: string
           fecha?: string
+          gasto_id?: string | null
           id?: string
           obra_id?: string
           stock_evento_id?: string | null
           tarea_id?: string | null
           thumbnail_url?: string | null
+          tipo?: string
           ubicacion_texto?: string | null
           updated_at?: string
           url?: string | null
@@ -464,6 +480,13 @@ export type Database = {
             columns: ["diario_id"]
             isOneToOne: false
             referencedRelation: "diario_obra"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fotos_gasto_id_fkey"
+            columns: ["gasto_id"]
+            isOneToOne: false
+            referencedRelation: "gastos"
             referencedColumns: ["id"]
           },
           {
@@ -820,6 +843,7 @@ export type Database = {
           nombre: string
           notas: string | null
           superficie_m2: number | null
+          token_reporte: string
           updated_at: string
         }
         Insert: {
@@ -835,6 +859,7 @@ export type Database = {
           nombre: string
           notas?: string | null
           superficie_m2?: number | null
+          token_reporte?: string
           updated_at?: string
         }
         Update: {
@@ -850,6 +875,7 @@ export type Database = {
           nombre?: string
           notas?: string | null
           superficie_m2?: number | null
+          token_reporte?: string
           updated_at?: string
         }
         Relationships: []
@@ -1189,6 +1215,7 @@ export type Database = {
           orden: number
           porcentaje_avance: number
           rubro_id: string | null
+          tipo: string
           ubicacion: string | null
           updated_at: string
         }
@@ -1211,6 +1238,7 @@ export type Database = {
           orden?: number
           porcentaje_avance?: number
           rubro_id?: string | null
+          tipo?: string
           ubicacion?: string | null
           updated_at?: string
         }
@@ -1233,6 +1261,7 @@ export type Database = {
           orden?: number
           porcentaje_avance?: number
           rubro_id?: string | null
+          tipo?: string
           ubicacion?: string | null
           updated_at?: string
         }

@@ -1,12 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type DiarioRow } from "@/lib/offline/db";
 import { guardarNota, hidratarDiario } from "@/lib/offline/diario";
+import { obtenerClima } from "@/lib/clima";
 import ChipSync from "@/components/ChipSync";
 import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
+
+// diario_obra.etiquetas guarda estos tokens; la etiqueta visible es solo
+// legibilidad es-AR (mismo patrón que las unidades en materiales). "extra"
+// habilita en oficina el botón "Crear adicional desde nota".
+type EtiquetaValida = "incidente" | "decision" | "visita_cliente" | "extra";
+
+const ETIQUETAS: { token: EtiquetaValida; etiqueta: string }[] = [
+  { token: "incidente", etiqueta: "Incidente" },
+  { token: "decision", etiqueta: "Decisión" },
+  { token: "visita_cliente", etiqueta: "Visita cliente" },
+  { token: "extra", etiqueta: "Trabajo extra" },
+];
 
 /** "14:35" en hora de Argentina, a partir de un ISO. */
 function formatHora(iso: string): string {
@@ -29,7 +42,23 @@ export default function DiarioClient({
 }) {
   const [texto, setTexto] = useState("");
   const [foto, setFoto] = useState<File | null>(null);
+  const [etiquetas, setEtiquetas] = useState<EtiquetaValida[]>([]);
   const [guardando, setGuardando] = useState(false);
+
+  // Clima best-effort: se pide una vez al montar y se usa lo que haya al
+  // guardar (null si no hubo permiso/señal). Nunca bloquea ni agrega toques.
+  const climaRef = useRef<string | null>(null);
+  useEffect(() => {
+    void obtenerClima().then((c) => {
+      climaRef.current = c;
+    });
+  }, []);
+
+  function toggleEtiqueta(token: EtiquetaValida) {
+    setEtiquetas((prev) =>
+      prev.includes(token) ? prev.filter((t) => t !== token) : [...prev, token],
+    );
+  }
 
   // Espejar las notas del server en Dexie (solo si llegaron: sin red la página
   // se sirve del cache del SW y los props pueden venir de una carga vieja).
@@ -71,9 +100,13 @@ export default function DiarioClient({
     if (!t && !foto) return; // nada que guardar
     setGuardando(true);
     try {
-      await guardarNota(obraId, etapaId, t, foto ?? undefined);
+      await guardarNota(obraId, etapaId, t, foto ?? undefined, {
+        clima: climaRef.current,
+        etiquetas,
+      });
       setTexto("");
       setFoto(null);
+      setEtiquetas([]);
     } finally {
       setGuardando(false);
     }
@@ -98,6 +131,27 @@ export default function DiarioClient({
           placeholder="Nota"
           className="min-h-24 rounded-lg border border-black/20 px-3 py-2 text-base"
         />
+
+        <div className="flex flex-wrap gap-2">
+          {ETIQUETAS.map(({ token, etiqueta }) => {
+            const activa = etiquetas.includes(token);
+            return (
+              <button
+                key={token}
+                type="button"
+                aria-pressed={activa}
+                onClick={() => toggleEtiqueta(token)}
+                className={`min-h-12 rounded-lg border-2 px-3 font-semibold ${
+                  activa
+                    ? "border-brand bg-brand text-white"
+                    : "border-brand/40 text-brand"
+                }`}
+              >
+                {etiqueta}
+              </button>
+            );
+          })}
+        </div>
 
         <label className="flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-brand/50 font-bold text-brand">
           📷 Foto
@@ -146,7 +200,18 @@ export default function DiarioClient({
                 <span className="shrink-0 text-lg" title="Con foto">📷</span>
               )}
             </div>
-            <p className="mt-1 text-sm text-muted">{formatHora(n.captured_at)}</p>
+            <p className="mt-1 text-sm text-muted">
+              {formatHora(n.captured_at)}
+              {n.clima ? ` · ${n.clima}` : ""}
+              {(n.etiquetas ?? []).length > 0
+                ? ` · ${(n.etiquetas ?? [])
+                    .map(
+                      (t) =>
+                        ETIQUETAS.find((e) => e.token === t)?.etiqueta ?? t,
+                    )
+                    .join(", ")}`
+                : ""}
+            </p>
           </li>
         ))}
         {notas?.length === 0 && (

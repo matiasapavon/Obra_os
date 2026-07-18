@@ -14,6 +14,7 @@ const TABS = [
   { href: "/oficina/personal", label: "Personal" },
   { href: "/oficina/asistencias", label: "Asistencias" },
   { href: "/oficina/diario", label: "Diario" },
+  { href: "/oficina/punch", label: "Punch" },
   { href: "/oficina/rubros", label: "Rubros" },
   { href: "/oficina/gastos", label: "Gastos" },
   { href: "/oficina/compromisos", label: "Compromisos" },

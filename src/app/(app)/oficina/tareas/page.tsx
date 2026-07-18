@@ -37,6 +37,7 @@ export default async function TareasPage() {
     .from("tareas")
     .select("*")
     .eq("obra_id", obra.id)
+    .eq("tipo", "obra") // las punch viven en /oficina/punch
     .order("orden", { ascending: true });
 
   const filas = tareas ?? [];

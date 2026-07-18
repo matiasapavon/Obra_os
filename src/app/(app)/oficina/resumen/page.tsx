@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { obraActiva } from "@/lib/oficina/obra";
 import { formatARS, fechaHoyISO } from "@/lib/format";
+import LinkReporte from "@/components/oficina/LinkReporte";
 
 // Dashboard de la obra activa: avance, plata por rubro, caja y asistencia.
 // Barras CSS puras (sin librería de charts — principio de simplicidad).
@@ -60,11 +61,14 @@ export default async function ResumenPage() {
     { data: ingresos },
     { data: asistencias },
     { data: personal },
+    { data: compromisos },
+    { data: obraToken },
   ] = await Promise.all([
     supabase
       .from("tareas")
       .select("estado, porcentaje_avance")
       .eq("obra_id", obra.id)
+      .eq("tipo", "obra") // las punch no cuentan para el avance
       .is("deleted_at", null),
     supabase
       .from("rubros")
@@ -93,6 +97,17 @@ export default async function ResumenPage() {
       .select("id")
       .eq("obra_id", obra.id)
       .is("deleted_at", null),
+    supabase
+      .from("compromisos")
+      .select("monto_total, monto_pagado")
+      .eq("obra_id", obra.id)
+      .neq("estado", "pagado")
+      .is("deleted_at", null),
+    supabase
+      .from("obras")
+      .select("token_reporte")
+      .eq("id", obra.id)
+      .maybeSingle(),
   ]);
 
   // Avance: promedio simple del porcentaje de las tareas vivas.
@@ -122,6 +137,14 @@ export default async function ResumenPage() {
   );
   const saldoCaja = totalIngresos - totalGastado;
 
+  // Comprometido = saldo impago de compromisos vivos (los pagos ya son gastos:
+  // se excluye estado='pagado' y se resta monto_pagado para no contar doble).
+  const totalComprometido = (compromisos ?? []).reduce(
+    (acc, c) => acc + Math.max(0, c.monto_total - c.monto_pagado),
+    0,
+  );
+  const totalProyectado = totalGastado + totalComprometido;
+
   // Asistencia últimos 7 días: jornales equivalentes por fecha.
   const jornalesPorFecha = new Map<string, number>();
   for (const a of asistencias ?? []) {
@@ -141,6 +164,9 @@ export default async function ResumenPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      {obraToken?.token_reporte && (
+        <LinkReporte token={obraToken.token_reporte} />
+      )}
       <div className="grid gap-4 md:grid-cols-3">
         <Tarjeta titulo="Avance de obra">
           <p className="mb-2 text-3xl font-bold tabular-nums text-ink">
@@ -174,11 +200,21 @@ export default async function ResumenPage() {
             porcentaje={
               totalPresupuesto > 0 ? (totalGastado / totalPresupuesto) * 100 : 0
             }
-            color={totalGastado > totalPresupuesto ? "alert" : "ok"}
+            color={totalProyectado > totalPresupuesto ? "alert" : "ok"}
           />
           <p className="mt-2 text-sm text-muted">
             de {formatARS(totalPresupuesto)} presupuestados
           </p>
+          {totalComprometido > 0 && (
+            <p
+              className={`mt-1 text-sm ${
+                totalProyectado > totalPresupuesto ? "text-alert" : "text-muted"
+              }`}
+            >
+              + {formatARS(totalComprometido)} comprometidos → proyectado{" "}
+              {formatARS(totalProyectado)}
+            </p>
+          )}
         </Tarjeta>
       </div>
 

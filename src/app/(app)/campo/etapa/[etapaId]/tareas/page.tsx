@@ -27,6 +27,7 @@ export default async function TareasEtapaPage({
     .select("*")
     .eq("obra_id", obra.id)
     .eq("etapa_id", etapa.id)
+    .eq("tipo", "obra")
     .is("deleted_at", null)
     .neq("estado", "terminada")
     .order("orden");

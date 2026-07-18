@@ -4,6 +4,7 @@ import TablaOficina, {
   type ColumnaOficina,
 } from "@/components/oficina/TablaOficina";
 import { formatFechaCorta } from "@/lib/format";
+import BotonAdicionalDesdeNota from "@/components/oficina/BotonAdicionalDesdeNota";
 
 const COLUMNAS: ColumnaOficina[] = [
   { key: "fecha", label: "Fecha" },
@@ -12,6 +13,7 @@ const COLUMNAS: ColumnaOficina[] = [
   { key: "etiquetas", label: "Etiquetas" },
   { key: "fotos", label: "Fotos", alinear: "right" },
   { key: "origen", label: "Origen" },
+  { key: "accion", label: "Acción" },
 ];
 
 export default async function DiarioPage() {
@@ -21,13 +23,24 @@ export default async function DiarioPage() {
     return <p className="py-8 text-muted">No hay ninguna obra activa.</p>;
   }
 
-  const { data: diario } = await supabase
-    .from("diario_obra")
-    .select("*, fotos(count)")
-    .eq("obra_id", obra.id)
-    .order("fecha", { ascending: false });
+  const [{ data: diario }, { data: adicionales }] = await Promise.all([
+    supabase
+      .from("diario_obra")
+      .select("*, fotos(count)")
+      .eq("obra_id", obra.id)
+      .order("fecha", { ascending: false }),
+    // Notas que ya tienen adicional creado (change event procesado).
+    supabase
+      .from("adicionales")
+      .select("diario_id")
+      .eq("obra_id", obra.id)
+      .not("diario_id", "is", null),
+  ]);
 
   const filas = diario ?? [];
+  const notasConAdicional = new Set(
+    (adicionales ?? []).map((a) => a.diario_id).filter(Boolean),
+  );
 
   return (
     <TablaOficina
@@ -76,6 +89,16 @@ export default async function DiarioPage() {
                 <span className="inline-block rounded-full border border-pending/40 bg-pending/10 px-2.5 py-0.5 text-xs font-bold text-muted">
                   campo
                 </span>
+              ) : (
+                <span className="text-pending">—</span>
+              )}
+            </td>
+            <td className="px-3 py-1.5 align-middle">
+              {d.etiquetas.includes("extra") ? (
+                <BotonAdicionalDesdeNota
+                  diarioId={d.id}
+                  tieneAdicional={notasConAdicional.has(d.id)}
+                />
               ) : (
                 <span className="text-pending">—</span>
               )}

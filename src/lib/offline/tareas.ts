@@ -1,5 +1,6 @@
 import { db, type TareaRow } from "./db";
 import { encolar } from "./sync";
+import { encolarFoto } from "./diario";
 
 export function estadoDeAvance(pct: number): TareaRow["estado"] {
   if (pct <= 0) return "pendiente";
@@ -27,6 +28,61 @@ export async function marcarAvance(tarea: TareaRow, porcentaje: number): Promise
     porcentaje_avance: fila.porcentaje_avance,
     estado: fila.estado,
   });
+}
+
+/**
+ * Crea un ítem de punch list (defecto/pendiente de cierre) desde campo:
+ * tarea tipo='punch' con foto opcional. No aparece en la lista normal de
+ * tareas ni cuenta para el avance de obra.
+ */
+export async function crearPunch(
+  obraId: string,
+  etapaId: string,
+  nombre: string,
+  gremioId?: string | null,
+  fotoBlob?: Blob,
+): Promise<void> {
+  const ahora = new Date().toISOString();
+  const id = crypto.randomUUID();
+  const fila: TareaRow = {
+    id,
+    obra_id: obraId,
+    etapa_id: etapaId,
+    rubro_id: null,
+    gremio_id: gremioId ?? null,
+    nombre,
+    descripcion: null,
+    ubicacion: null,
+    tipo: "punch",
+    estado: "pendiente",
+    porcentaje_avance: 0,
+    orden: 0,
+    fecha_inicio_plan: null,
+    fecha_fin_plan: null,
+    fecha_inicio_real: null,
+    fecha_fin_real: null,
+    captured_at: ahora,
+    created_offline: true,
+    created_at: ahora,
+    updated_at: ahora,
+    deleted_at: null,
+  };
+  await db.tareas_hoy.put(fila);
+  await encolar("tareas", {
+    id,
+    obra_id: obraId,
+    etapa_id: etapaId,
+    gremio_id: gremioId ?? null,
+    nombre,
+    tipo: "punch",
+    estado: "pendiente",
+    porcentaje_avance: 0,
+    captured_at: ahora,
+    created_offline: true,
+  });
+  if (fotoBlob) {
+    await encolarFoto(obraId, fotoBlob, { tarea_id: id });
+  }
 }
 
 /** Hidrata el espejo de tareas (pisa, respetando lo que aún está en la cola). */
