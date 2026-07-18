@@ -37,8 +37,9 @@
       registrar; se reconciliaron con `migration repair` y se aplicó la 004 (multi-obra). Historial
       remoto ahora al día (2026-07-11).
 - [x] **`npm run gen:types`** — regenerado; incluye `obras_usuarios`.
-- [ ] **[Dashboard Supabase]** Authentication → deshabilitar "Allow new users to sign up".
-- [ ] **[Dashboard Supabase]** Verificar que el usuario de Mati tiene `role='admin'` en `profiles`.
+- [x] **[Dashboard Supabase]** Authentication → "Allow new users to sign up" deshabilitado (2026-07-17).
+- [x] **[Dashboard Supabase]** Usuario de Mati (`matias.a.pavon`) es admin — verificado en la
+      práctica: el export API (admin-only) le responde (2026-07-17).
 - [ ] Tipar los 3 clientes de `src/lib/supabase/` con `<Database>` (client.ts, server.ts,
       middleware.ts) — opcional, mejora el tipado end-to-end.
 - [ ] Verificar RLS con roles simulados en el SQL Editor (ver plan de la sesión 2026-07-11).
@@ -62,10 +63,16 @@
 - [x] **Diario** (`/campo/diario`): nota de texto + foto opcional; sync en dos canales (fila JSON
       por la cola, binario como Blob en IndexedDB + uploader a Storage diferido).
 - [x] Verificado en cada tramo: typecheck, lint y build verdes; cada tramo revisado por subagente.
-- [x] **[Dashboard Supabase]** Bucket de Storage `fotos-obra` creado (público, insert para
-      `authenticated`, select público). Falta la verificación end-to-end desde `/campo/diario`.
-- [ ] **Prueba manual offline end-to-end** (DevTools offline → capturar en las 4 pantallas →
-      recargar → reconectar → verificar filas en Supabase con `created_offline`/`captured_at`).
+- [x] **[Dashboard Supabase]** Bucket de Storage `fotos-obra` creado. El toggle "Public bucket"
+      estaba apagado (la URL pública daba "Bucket not found"); Demian lo activó 2026-07-17 y la
+      URL pública responde 200 image/jpeg.
+- [x] **Prueba manual offline end-to-end** (2026-07-17, simulada en navegador: override de
+      `navigator.onLine` + bloqueo de fetch a Supabase). Las 4 pantallas de campo pasaron:
+      asistencia (persona nueva + presente), tareas (slider 50% → en_curso), materiales
+      (material nuevo + pedido FALTA), diario (nota + foto). Cola persistió en IndexedDB,
+      drenó al reconectar, filas en Supabase con `created_offline`/`captured_at`, foto
+      comprimida (60→34 KB) subida a Storage y accesible por URL pública. Datos de prueba en
+      la obra "Obra de prueba (test offline)" — limpiar con soft-delete cuando ya no sirvan.
 - [x] Vistas de tabla desktop en `/oficina` (tareas, materiales+pedidos con costos, personal,
       asistencias, diario) con edición inline vía server action + allow-list. Gate admin en el
       layout de `/oficina`. Patrón reutilizable `TablaOficina`/`CeldaEditable`/`BadgeEstado`.
