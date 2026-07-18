@@ -17,10 +17,10 @@ export default function TablaOficina({
   hayFilas?: boolean;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-black/10">
+    <div className="overflow-x-auto rounded-xl border border-line">
       <table className="w-full border-collapse text-sm">
         <thead className="sticky top-0 z-10 bg-paper">
-          <tr className="border-b border-black/10 text-left">
+          <tr className="border-b border-line text-left">
             {columnas.map((col) => (
               <th
                 key={col.key}
@@ -33,7 +33,7 @@ export default function TablaOficina({
             ))}
           </tr>
         </thead>
-        <tbody className="[&>tr:nth-child(even)]:bg-black/[0.02]">
+        <tbody className="[&>tr:nth-child(even)]:bg-surface/40">
           {hayFilas ? (
             children
           ) : (

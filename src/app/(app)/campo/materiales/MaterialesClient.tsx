@@ -12,14 +12,18 @@ import {
   faltanteAbierto,
 } from "@/lib/offline/materiales";
 import ChipSync from "@/components/ChipSync";
+import { useCaptura, AvisoCaptura } from "@/components/CapturaSegura";
+import Button from "@/components/ui/Button";
+import ChipToggle from "@/components/ui/ChipToggle";
 import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
-// Estado visible del material según su último pedido. Semántica de color fija.
+// Estado visible del material según su último pedido. Semántica de color fija;
+// color pleno (borde + fondo) solo para "falta", que es el estado que pide acción.
 const ESTILO = {
-  ok: { clase: "border-ok bg-ok/10 text-ok", etiqueta: "Entregado" },
+  ok: { clase: "border-line bg-ok/10 text-ok", etiqueta: "Entregado" },
   falta: { clase: "border-alert bg-alert/10 text-alert", etiqueta: "Falta" },
-  nada: { clase: "border-pending/50 bg-pending/10 text-muted", etiqueta: "En obra" },
+  nada: { clase: "border-line bg-paper text-muted", etiqueta: "En obra" },
 } as const;
 
 function estadoVisible(pedido: PedidoCampoRow | undefined): keyof typeof ESTILO {
@@ -78,19 +82,23 @@ export default function MaterialesClient({
     [obraId],
   );
 
+  const { errorCaptura, capturar } = useCaptura();
+
   async function onFalta(material: MaterialRow) {
-    await marcarFalta(obraId, etapaId, material.id);
+    await capturar(() => marcarFalta(obraId, etapaId, material.id));
   }
 
   async function onLlego(pedido: PedidoCampoRow) {
-    await marcarLlego(pedido);
+    await capturar(() => marcarLlego(pedido));
   }
 
   async function onAlta(e: React.FormEvent) {
     e.preventDefault();
     const n = nombre.trim();
     if (!n) return;
-    await altaMaterial(obraId, n, unidad);
+    // Limpiar el form solo si el guardado local fue OK (si falló, no perder lo tipeado).
+    const ok = await capturar(() => altaMaterial(obraId, n, unidad));
+    if (!ok) return;
     setNombre("");
     setUnidad(null);
     setAltaAbierta(false);
@@ -109,6 +117,8 @@ export default function MaterialesClient({
         </div>
         <ChipSync />
       </div>
+
+      <AvisoCaptura visible={errorCaptura} />
 
       <ul className="flex flex-col gap-2">
         {(materiales ?? []).map((m) => {
@@ -130,21 +140,23 @@ export default function MaterialesClient({
                 <span className="text-sm font-bold">{etiqueta}</span>
               </div>
               {abierto ? (
-                <button
-                  type="button"
+                <Button
+                  variante="success"
+                  tamano="campo"
+                  className="shrink-0"
                   onClick={() => void onLlego(abierto)}
-                  className="min-h-12 shrink-0 rounded-lg bg-ok px-4 font-bold text-white"
                 >
                   LLEGÓ
-                </button>
+                </Button>
               ) : (
-                <button
-                  type="button"
+                <Button
+                  variante="danger"
+                  tamano="campo"
+                  className="shrink-0"
                   onClick={() => void onFalta(m)}
-                  className="min-h-12 shrink-0 rounded-lg border-2 border-alert px-4 font-bold text-alert"
                 >
                   FALTA
-                </button>
+                </Button>
               )}
             </li>
           );
@@ -163,7 +175,7 @@ export default function MaterialesClient({
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             placeholder="Nombre"
-            className="min-h-12 rounded-lg border border-black/20 px-3 text-base"
+            className="min-h-12 rounded-lg border border-line-strong px-3 text-base"
           />
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-muted">Unidad (opcional)</span>
@@ -171,30 +183,21 @@ export default function MaterialesClient({
               {UNIDADES.map(({ token, etiqueta }) => {
                 const activa = unidad === token;
                 return (
-                  <button
+                  <ChipToggle
                     key={token}
-                    type="button"
-                    aria-pressed={activa}
+                    activo={activa}
                     onClick={() => setUnidad(activa ? null : token)}
-                    className={`min-h-12 rounded-lg border-2 px-4 font-bold ${
-                      activa
-                        ? "border-brand bg-brand text-white"
-                        : "border-brand/40 text-brand"
-                    }`}
                   >
                     {etiqueta}
-                  </button>
+                  </ChipToggle>
                 );
               })}
             </div>
           </div>
           <div className="flex gap-2">
-            <button
-              type="submit"
-              className="min-h-12 flex-1 rounded-lg bg-brand font-bold text-white"
-            >
+            <Button variante="primary" tamano="campo" type="submit" className="flex-1">
               Agregar
-            </button>
+            </Button>
             <button
               type="button"
               onClick={() => setAltaAbierta(false)}

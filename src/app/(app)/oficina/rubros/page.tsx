@@ -93,7 +93,11 @@ export default async function RubrosPage() {
           return (
             <tr
               key={r.id}
-              className={r.deleted_at ? "opacity-40" : ""}
+              // Rubro pasado de presupuesto: la fila entera avisa (rojo=acción),
+              // no solo el número — al escanear la tabla tiene que saltar.
+              className={
+                r.deleted_at ? "opacity-40" : pasado ? "bg-alert/5" : ""
+              }
               title={r.deleted_at ? "Fila borrada (soft-delete)" : undefined}
             >
               {r.es_sistema ? (

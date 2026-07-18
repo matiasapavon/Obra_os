@@ -18,7 +18,28 @@
   --color-ok: #16a34a;
   --color-warn: #f59e0b;
   --color-alert: #dc2626;
-  --color-pending: #9ca3af;
+  --color-pending: #a8a099;
+
+  /*
+    Superficies y líneas (tintadas cálidas, misma familia que ink/muted).
+    surface = fondo de página / hover fill · line = borde default · line-strong
+    = borde de inputs. Nunca volver a black/5-black/20 sueltos.
+  */
+  --color-surface: #f6f4f1;
+  --color-line: #e8e6e3;
+  --color-line-strong: #d6d2cd;
+
+  /*
+    Convención de radios (Apple-like, consistente):
+    - rounded-2xl / --radius-card (16px): CONTENEDORES (cards, tarjetas, tiles).
+    - rounded-lg (8px): CONTROLES (botones, inputs, chips de selección).
+    - rounded-full: PILLS DE ESTADO (ChipSync, badges). Nunca para botones.
+    Botones y chips van por <Button>/<ChipToggle> (src/components/ui); no repetir
+    className inline.
+  */
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 3px rgb(23 19 15 / 0.07), 0 1px 2px rgb(23 19 15 / 0.05);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
 
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
@@ -27,6 +48,8 @@
 
 html,
 body {
+  /* Tema claro único y explícito (inputs nativos y scrollbars coherentes). */
+  color-scheme: light;
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);

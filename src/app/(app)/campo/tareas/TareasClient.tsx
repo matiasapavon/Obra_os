@@ -6,6 +6,8 @@ import { db, type TareaRow } from "@/lib/offline/db";
 import { marcarAvance, hidratarTareas } from "@/lib/offline/tareas";
 import ChipSync from "@/components/ChipSync";
 import VolverCampo from "@/components/VolverCampo";
+import { useCaptura, AvisoCaptura } from "@/components/CapturaSegura";
+import Button from "@/components/ui/Button";
 import { formatFechaCorta } from "@/lib/format";
 
 const ESTILO: Record<string, { clase: string; etiqueta: string }> = {
@@ -45,6 +47,8 @@ export default function TareasClient({
     [obraId, etapaId],
   );
 
+  const { errorCaptura, capturar } = useCaptura();
+
   return (
     <div className="mx-auto flex max-w-md flex-col gap-3 px-4 py-4">
       <div className="flex items-center justify-between gap-2">
@@ -57,38 +61,73 @@ export default function TareasClient({
         <ChipSync />
       </div>
 
+      <AvisoCaptura visible={errorCaptura} />
+
       <ul className="flex flex-col gap-2">
         {(tareas ?? []).map((t) => {
           const estilo = ESTILO[t.estado] ?? ESTILO.pendiente;
+          // Semántica de color: solo "bloqueada" pide acción (borde rojo);
+          // el resto usa borde neutro y comunica estado por el texto.
+          const borde =
+            t.estado === "bloqueada" ? "border-alert/60" : "border-line";
           return (
             <li
               key={t.id}
-              className="flex min-h-16 flex-col gap-2 rounded-xl border-2 border-pending/40 bg-pending/5 px-4 py-3"
+              className={`flex min-h-16 flex-col gap-2 rounded-2xl border-2 bg-paper px-4 py-3 shadow-card ${borde}`}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-base font-bold text-ink">{t.nombre}</span>
-                <span className={`text-sm font-bold ${estilo.clase}`}>
+                <span
+                  className={`text-sm font-bold tabular-nums ${estilo.clase}`}
+                >
                   {t.porcentaje_avance}% · {estilo.etiqueta}
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={25}
-                  value={t.porcentaje_avance}
-                  onChange={(e) => void marcarAvance(t, Number(e.target.value))}
-                  className="h-3 w-full accent-brand"
-                  aria-label={`Avance de ${t.nombre}`}
+              {/* Barra de avance (solo lectura) + botones de step ≥48px:
+                  un slider no es confiable con guantes ni al sol. */}
+              <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
+                <div
+                  className="h-full rounded-full bg-brand transition-[width]"
+                  style={{ width: `${t.porcentaje_avance}%` }}
                 />
-                <button
-                  type="button"
-                  onClick={() => void marcarAvance(t, 100)}
-                  className="min-h-12 shrink-0 rounded-lg bg-ok px-4 font-bold text-white"
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variante="secondary"
+                  tamano="campo"
+                  className="flex-1"
+                  disabled={t.porcentaje_avance <= 0}
+                  onClick={() =>
+                    void capturar(() =>
+                      marcarAvance(t, Math.max(0, t.porcentaje_avance - 25)),
+                    )
+                  }
+                  aria-label={`Restar 25% de avance a ${t.nombre}`}
+                >
+                  −25%
+                </Button>
+                <Button
+                  variante="secondary"
+                  tamano="campo"
+                  className="flex-1"
+                  disabled={t.porcentaje_avance >= 100}
+                  onClick={() =>
+                    void capturar(() =>
+                      marcarAvance(t, Math.min(100, t.porcentaje_avance + 25)),
+                    )
+                  }
+                  aria-label={`Sumar 25% de avance a ${t.nombre}`}
+                >
+                  +25%
+                </Button>
+                <Button
+                  variante="success"
+                  tamano="campo"
+                  className="flex-1"
+                  onClick={() => void capturar(() => marcarAvance(t, 100))}
                 >
                   Listo
-                </button>
+                </Button>
               </div>
             </li>
           );

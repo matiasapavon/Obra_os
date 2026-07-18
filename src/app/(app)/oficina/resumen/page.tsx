@@ -9,12 +9,20 @@ import LinkReporte from "@/components/oficina/LinkReporte";
 function Tarjeta({
   titulo,
   children,
+  destacada = false,
 }: {
   titulo: string;
   children: React.ReactNode;
+  destacada?: boolean;
 }) {
+  // destacada: la tarjeta más importante del dashboard (Caja) lleva borde brand;
+  // el resto, chrome neutro. Elevación sutil en todas (jerarquía página→card).
   return (
-    <section className="rounded-xl border border-black/10 p-4">
+    <section
+      className={`rounded-card bg-paper p-4 shadow-card ${
+        destacada ? "border-2 border-brand/30" : "border border-line"
+      }`}
+    >
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
         {titulo}
       </h2>
@@ -33,7 +41,7 @@ function Barra({
   const clase =
     color === "ok" ? "bg-ok" : color === "alert" ? "bg-alert" : "bg-brand";
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-black/5">
+    <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
       <div
         className={`h-full rounded-full ${clase}`}
         style={{ width: `${Math.min(100, Math.max(0, porcentaje))}%` }}
@@ -178,7 +186,7 @@ export default async function ResumenPage() {
           </p>
         </Tarjeta>
 
-        <Tarjeta titulo="Caja (ingresos − gastos)">
+        <Tarjeta titulo="Caja (ingresos − gastos)" destacada>
           <p
             className={`mb-2 text-3xl font-bold tabular-nums ${
               saldoCaja < 0 ? "text-alert" : "text-ink"
@@ -264,7 +272,7 @@ export default async function ResumenPage() {
                 <span className="text-xs tabular-nums text-muted">
                   {d.jornales || ""}
                 </span>
-                <div className="flex h-24 w-full items-end rounded bg-black/5">
+                <div className="flex h-24 w-full items-end rounded bg-surface">
                   <div
                     className="w-full rounded bg-brand"
                     style={{ height: `${alto}%` }}

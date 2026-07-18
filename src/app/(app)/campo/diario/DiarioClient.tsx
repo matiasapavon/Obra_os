@@ -6,6 +6,9 @@ import { db, type DiarioRow } from "@/lib/offline/db";
 import { guardarNota, hidratarDiario } from "@/lib/offline/diario";
 import { obtenerClima } from "@/lib/clima";
 import ChipSync from "@/components/ChipSync";
+import { useCaptura, AvisoCaptura } from "@/components/CapturaSegura";
+import Button from "@/components/ui/Button";
+import ChipToggle from "@/components/ui/ChipToggle";
 import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
@@ -94,16 +97,22 @@ export default function DiarioClient({
     };
   }, [previewUrl]);
 
+  const { errorCaptura, capturar } = useCaptura();
+
   async function onGuardar(e: React.FormEvent) {
     e.preventDefault();
     const t = texto.trim();
     if (!t && !foto) return; // nada que guardar
     setGuardando(true);
     try {
-      await guardarNota(obraId, etapaId, t, foto ?? undefined, {
-        clima: climaRef.current,
-        etiquetas,
-      });
+      // Limpiar el form solo si el guardado local fue OK (si falló, no perder la nota).
+      const ok = await capturar(() =>
+        guardarNota(obraId, etapaId, t, foto ?? undefined, {
+          clima: climaRef.current,
+          etiquetas,
+        }),
+      );
+      if (!ok) return;
       setTexto("");
       setFoto(null);
       setEtiquetas([]);
@@ -124,33 +133,26 @@ export default function DiarioClient({
         <ChipSync />
       </div>
 
+      <AvisoCaptura visible={errorCaptura} />
+
       <form onSubmit={onGuardar} className="flex flex-col gap-2 rounded-xl border-2 border-brand/40 p-4">
         <textarea
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Nota"
-          className="min-h-24 rounded-lg border border-black/20 px-3 py-2 text-base"
+          className="min-h-24 rounded-lg border border-line-strong px-3 py-2 text-base"
         />
 
         <div className="flex flex-wrap gap-2">
-          {ETIQUETAS.map(({ token, etiqueta }) => {
-            const activa = etiquetas.includes(token);
-            return (
-              <button
-                key={token}
-                type="button"
-                aria-pressed={activa}
-                onClick={() => toggleEtiqueta(token)}
-                className={`min-h-12 rounded-lg border-2 px-3 font-semibold ${
-                  activa
-                    ? "border-brand bg-brand text-white"
-                    : "border-brand/40 text-brand"
-                }`}
-              >
-                {etiqueta}
-              </button>
-            );
-          })}
+          {ETIQUETAS.map(({ token, etiqueta }) => (
+            <ChipToggle
+              key={token}
+              activo={etiquetas.includes(token)}
+              onClick={() => toggleEtiqueta(token)}
+            >
+              {etiqueta}
+            </ChipToggle>
+          ))}
         </div>
 
         <label className="flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-brand/50 font-bold text-brand">
@@ -167,7 +169,7 @@ export default function DiarioClient({
         {previewUrl && (
           <div className="flex items-center gap-3">
             <div
-              className="h-16 w-16 rounded-lg border border-black/10 bg-cover bg-center"
+              className="h-16 w-16 rounded-lg border border-line bg-cover bg-center"
               style={{ backgroundImage: `url(${previewUrl})` }}
             />
             <button
@@ -180,18 +182,14 @@ export default function DiarioClient({
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={guardando}
-          className="min-h-12 rounded-lg bg-brand font-bold text-white disabled:opacity-50"
-        >
+        <Button variante="primary" tamano="campo" type="submit" disabled={guardando}>
           Guardar
-        </button>
+        </Button>
       </form>
 
       <ul className="flex flex-col gap-2">
         {(notas ?? []).map((n) => (
-          <li key={n.id} className="rounded-xl border-2 border-black/10 px-4 py-3">
+          <li key={n.id} className="rounded-xl border-2 border-line px-4 py-3">
             <div className="flex items-start justify-between gap-2">
               <p className="whitespace-pre-wrap text-base text-ink">
                 {n.texto || <span className="text-muted">(sin texto)</span>}

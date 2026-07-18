@@ -126,7 +126,7 @@ export default async function AlertasPage() {
     <section>
       <h2 className="mb-2 text-lg font-semibold text-ink">Alertas</h2>
       {alertas.length === 0 ? (
-        <p className="rounded-xl border border-black/10 px-4 py-8 text-center text-muted">
+        <p className="rounded-xl border border-line px-4 py-8 text-center text-muted">
           Todo en orden: no hay nada vencido ni faltante.
         </p>
       ) : (

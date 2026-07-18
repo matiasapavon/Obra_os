@@ -30,7 +30,7 @@ export default function SelectorObra({
         })
       }
       aria-label="Obra en foco"
-      className={`min-h-9 rounded-lg border border-black/15 bg-paper px-3 py-1.5 text-sm font-semibold text-ink outline-none focus:border-brand ${
+      className={`min-h-9 rounded-lg border border-line-strong bg-paper px-3 py-1.5 text-sm font-semibold text-ink outline-none focus:border-brand ${
         pending ? "opacity-50" : ""
       }`}
     >

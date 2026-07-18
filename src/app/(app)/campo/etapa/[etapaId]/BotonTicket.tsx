@@ -20,7 +20,7 @@ export default function BotonTicket({ obraId }: { obraId: string }) {
   }
 
   return (
-    <label className="flex min-h-16 cursor-pointer items-center justify-between rounded-2xl border-2 border-black/10 px-5">
+    <label className="flex min-h-16 cursor-pointer items-center justify-between rounded-2xl border-2 border-line px-5">
       <div className="flex items-center gap-3">
         <span className="text-2xl">🧾</span>
         <div className="flex flex-col">

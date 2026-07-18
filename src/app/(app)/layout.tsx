@@ -24,7 +24,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="flex items-center justify-between border-b border-black/10 px-4 py-3">
+      <header className="flex items-center justify-between border-b border-line px-4 py-3">
         <div className="flex flex-col leading-tight">
           <span className="text-lg font-bold text-brand">Obra OS</span>
           <span className="text-xs text-muted">Hola, {nombre}</span>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { crearFila } from "@/lib/oficina/crearFila";
+import Button from "@/components/ui/Button";
 
 type Tipo = "text" | "number" | "money" | "date" | "select";
 
@@ -58,13 +59,7 @@ export default function FormAlta({
   if (!abierto) {
     return (
       <div className="mb-3">
-        <button
-          type="button"
-          onClick={() => setAbierto(true)}
-          className="min-h-10 rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand/90"
-        >
-          + {etiqueta}
-        </button>
+        <Button onClick={() => setAbierto(true)}>+ {etiqueta}</Button>
       </div>
     );
   }
@@ -110,23 +105,18 @@ export default function FormAlta({
           )}
         </label>
       ))}
-      <button
-        type="submit"
-        disabled={pending}
-        className="min-h-10 rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand/90 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending}>
         Guardar
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        variante="secondary"
         onClick={() => {
           setAbierto(false);
           setError(null);
         }}
-        className="min-h-10 rounded-lg border border-black/15 px-4 text-sm text-muted hover:bg-black/5"
       >
         Cancelar
-      </button>
+      </Button>
       {error && <p className="w-full text-sm text-alert">{error}</p>}
     </form>
   );

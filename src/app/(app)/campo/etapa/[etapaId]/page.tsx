@@ -71,7 +71,7 @@ export default async function EtapaHubPage({
         <h1 className="text-2xl font-bold text-ink">{etapa.nombre}</h1>
       </div>
 
-      <div className="rounded-2xl border-2 border-black/10 px-5 py-4">
+      <div className="rounded-2xl border-2 border-line px-5 py-4">
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted">Gremio</span>
           <span className="font-semibold text-ink">
@@ -94,7 +94,7 @@ export default async function EtapaHubPage({
         <Link
           key={c.href}
           href={c.href}
-          className="flex min-h-16 items-center justify-between rounded-2xl border-2 border-black/10 px-5"
+          className="flex min-h-16 items-center justify-between rounded-2xl border-2 border-line px-5"
         >
           <div className="flex items-center gap-3">
             <span className="text-2xl">{c.emoji}</span>

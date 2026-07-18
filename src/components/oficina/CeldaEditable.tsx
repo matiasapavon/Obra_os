@@ -92,8 +92,10 @@ export default function CeldaEditable({
       <td
         onClick={() => !pending && setEditando(true)}
         title={error ? "No se pudo guardar. Reintentá." : "Click para editar"}
-        className={`cursor-pointer px-3 py-1.5 align-middle ${
-          tipo === "money" || tipo === "number" ? "text-right tabular-nums" : ""
+        className={`group cursor-pointer px-3 py-1.5 align-middle ${
+          tipo === "money" || tipo === "number"
+            ? "text-right font-medium tabular-nums"
+            : ""
         } ${pending ? "opacity-50" : ""} ${
           error
             ? "bg-alert/10 text-alert"
@@ -104,7 +106,23 @@ export default function CeldaEditable({
                 : "hover:bg-brand/5"
         }`}
       >
-        <span className="inline-flex min-h-8 items-center">{display()}</span>
+        <span className="inline-flex min-h-8 items-center gap-1.5">
+          {display()}
+          {/* Affordance de edición: lápiz visible recién en hover (el title
+              nativo tarda ~1s en aparecer y nadie lo descubre). */}
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-3.5 w-3.5 shrink-0 text-muted opacity-0 transition-opacity group-hover:opacity-60"
+          >
+            <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+          </svg>
+        </span>
       </td>
     );
   }

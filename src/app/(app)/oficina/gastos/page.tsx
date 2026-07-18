@@ -115,7 +115,7 @@ export default async function GastosPage() {
                     <img
                       src={t.url!}
                       alt="Ticket de campo"
-                      className="h-24 w-24 rounded-lg border border-black/10 object-cover"
+                      className="h-24 w-24 rounded-lg border border-line object-cover"
                     />
                   </a>
                   <span className="text-xs text-muted">{t.fecha}</span>

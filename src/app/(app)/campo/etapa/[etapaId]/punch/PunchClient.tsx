@@ -5,6 +5,9 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db, type TareaRow } from "@/lib/offline/db";
 import { crearPunch, marcarAvance, hidratarTareas } from "@/lib/offline/tareas";
 import ChipSync from "@/components/ChipSync";
+import { useCaptura, AvisoCaptura } from "@/components/CapturaSegura";
+import Button from "@/components/ui/Button";
+import ChipToggle from "@/components/ui/ChipToggle";
 import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
@@ -58,13 +61,19 @@ export default function PunchClient({
     };
   }, [previewUrl]);
 
+  const { errorCaptura, capturar } = useCaptura();
+
   async function onAlta(e: React.FormEvent) {
     e.preventDefault();
     const n = nombre.trim();
     if (!n) return;
     setGuardando(true);
     try {
-      await crearPunch(obraId, etapaId, n, gremioId, foto ?? undefined);
+      // Limpiar el form solo si el guardado local fue OK (si falló, no perder lo cargado).
+      const ok = await capturar(() =>
+        crearPunch(obraId, etapaId, n, gremioId, foto ?? undefined),
+      );
+      if (!ok) return;
       setNombre("");
       setGremioId(null);
       setFoto(null);
@@ -86,6 +95,8 @@ export default function PunchClient({
         <ChipSync />
       </div>
 
+      <AvisoCaptura visible={errorCaptura} />
+
       {!altaAbierta ? (
         <button
           type="button"
@@ -103,7 +114,7 @@ export default function PunchClient({
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             placeholder="Qué hay que arreglar"
-            className="min-h-12 rounded-lg border border-black/20 px-3 text-base"
+            className="min-h-12 rounded-lg border border-line-strong px-3 text-base"
           />
 
           {gremios.length > 0 && (
@@ -111,19 +122,13 @@ export default function PunchClient({
               {gremios.map((g) => {
                 const activo = gremioId === g.id;
                 return (
-                  <button
+                  <ChipToggle
                     key={g.id}
-                    type="button"
-                    aria-pressed={activo}
+                    activo={activo}
                     onClick={() => setGremioId(activo ? null : g.id)}
-                    className={`min-h-12 rounded-lg border-2 px-3 font-semibold ${
-                      activo
-                        ? "border-brand bg-brand text-white"
-                        : "border-brand/40 text-brand"
-                    }`}
                   >
                     {g.nombre}
-                  </button>
+                  </ChipToggle>
                 );
               })}
             </div>
@@ -143,7 +148,7 @@ export default function PunchClient({
           {previewUrl && (
             <div className="flex items-center gap-3">
               <div
-                className="h-16 w-16 rounded-lg border border-black/10 bg-cover bg-center"
+                className="h-16 w-16 rounded-lg border border-line bg-cover bg-center"
                 style={{ backgroundImage: `url(${previewUrl})` }}
               />
               <button
@@ -156,13 +161,9 @@ export default function PunchClient({
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={guardando}
-            className="min-h-12 rounded-lg bg-brand font-bold text-white disabled:opacity-50"
-          >
+          <Button variante="primary" tamano="campo" type="submit" disabled={guardando}>
             Guardar
-          </button>
+          </Button>
         </form>
       )}
 
@@ -199,7 +200,9 @@ export default function PunchClient({
               </div>
               <button
                 type="button"
-                onClick={() => void marcarAvance(p, resuelto ? 0 : 100)}
+                onClick={() =>
+                  void capturar(() => marcarAvance(p, resuelto ? 0 : 100))
+                }
                 className={`min-h-12 shrink-0 rounded-lg px-4 font-bold text-white ${
                   resuelto ? "bg-pending" : "bg-ok"
                 }`}

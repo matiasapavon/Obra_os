@@ -40,17 +40,20 @@ export default async function OficinaLayout({
     <div className="mx-auto max-w-6xl px-6 py-6">
       <header className="mb-4 flex items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold text-muted">
-            Oficina ·{" "}
-            <Link href="/campo" className="font-normal underline-offset-2 hover:underline">
-              ir a campo
-            </Link>
-          </span>
-          <h1 className="text-2xl font-bold text-ink">
+          <span className="text-sm font-semibold text-muted">Oficina</span>
+          <h1 className="text-2xl font-bold tracking-tight text-ink">
             {obra ? obra.nombre : "No hay ninguna obra activa"}
           </h1>
         </div>
         <div className="flex items-start gap-3">
+          {/* Cambio de contexto grande (desktop↔mobile): botón visible, no un
+              link perdido en el breadcrumb. */}
+          <Link
+            href="/campo"
+            className="flex min-h-9 items-center rounded-lg border border-line px-3 text-sm font-semibold text-muted transition-colors hover:bg-surface hover:text-ink"
+          >
+            Ir a campo →
+          </Link>
           <SelectorObra obras={obras} actual={obra?.id ?? null} />
           <FormAlta
             tabla="obras"

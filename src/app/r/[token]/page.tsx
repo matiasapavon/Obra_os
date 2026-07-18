@@ -90,7 +90,7 @@ export default async function ReporteClientePage({
         {obra.direccion && <p className="text-muted">{obra.direccion}</p>}
       </header>
 
-      <section className="rounded-2xl border-2 border-black/10 p-5">
+      <section className="rounded-2xl border-2 border-line p-5">
         <div className="mb-2 flex items-baseline justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
             Avance general
@@ -99,7 +99,7 @@ export default async function ReporteClientePage({
             {avance}%
           </span>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-black/5">
+        <div className="h-3 w-full overflow-hidden rounded-full bg-surface">
           <div
             className="h-full rounded-full bg-brand"
             style={{ width: `${Math.min(100, Math.max(0, avance))}%` }}
@@ -125,7 +125,7 @@ export default async function ReporteClientePage({
                   <img
                     src={f.url}
                     alt={`Foto de obra del ${formatFechaCorta(f.fecha)}`}
-                    className="aspect-square w-full rounded-xl border border-black/10 object-cover"
+                    className="aspect-square w-full rounded-xl border border-line object-cover"
                   />
                 </a>
               ) : null,
@@ -143,7 +143,7 @@ export default async function ReporteClientePage({
             {notasVisibles.map((n) => (
               <li
                 key={n.id}
-                className="rounded-xl border border-black/10 px-4 py-3"
+                className="rounded-xl border border-line px-4 py-3"
               >
                 <p className="whitespace-pre-wrap text-ink">{n.texto}</p>
                 <p className="mt-1 text-sm text-muted">
@@ -155,7 +155,7 @@ export default async function ReporteClientePage({
         </section>
       )}
 
-      <footer className="border-t border-black/10 pt-4 text-center text-sm text-muted">
+      <footer className="border-t border-line pt-4 text-center text-sm text-muted">
         Reporte generado por Obra OS · se actualiza solo
       </footer>
     </main>

@@ -43,6 +43,11 @@ supabase/.temp/
 # claude code (config local por máquina)
 .claude/settings.local.json
 
+# skills de terceros instaladas por máquina (npx skills add ...)
+.agents/
+.claude/skills/
+skills-lock.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

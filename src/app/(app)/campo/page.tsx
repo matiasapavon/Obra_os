@@ -72,7 +72,7 @@ export default async function CampoPage() {
 
       <Link
         href="/oficina"
-        className="mt-4 flex min-h-12 items-center justify-center rounded-xl text-sm text-muted active:bg-black/5"
+        className="mt-4 flex min-h-12 items-center justify-center rounded-xl text-sm text-muted active:bg-surface"
       >
         🖥️ Ir a la oficina →
       </Link>

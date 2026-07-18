@@ -44,7 +44,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="vos@ejemplo.com"
-              className="h-14 rounded-xl border border-black/15 bg-paper px-4 text-lg text-ink outline-none focus:border-brand"
+              className="h-14 rounded-xl border border-line-strong bg-paper px-4 text-lg text-ink outline-none focus:border-brand"
             />
           </label>
           <label className="flex flex-col gap-2">
@@ -56,7 +56,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="h-14 rounded-xl border border-black/15 bg-paper px-4 text-lg text-ink outline-none focus:border-brand"
+              className="h-14 rounded-xl border border-line-strong bg-paper px-4 text-lg text-ink outline-none focus:border-brand"
             />
           </label>
           <button
@@ -67,7 +67,12 @@ export default function LoginPage() {
             {estado === "entrando" ? "Entrando…" : "Entrar"}
           </button>
           {estado === "error" && (
-            <p className="text-sm text-alert">No se pudo entrar: {error}</p>
+            <p
+              role="alert"
+              className="rounded-xl border border-alert/40 bg-alert/10 px-4 py-3 text-sm font-medium text-alert"
+            >
+              No se pudo entrar: {error}
+            </p>
           )}
         </form>
       </div>

@@ -12,13 +12,17 @@ import {
   type EstadoAsistencia,
 } from "@/lib/offline/asistencia";
 import ChipSync from "@/components/ChipSync";
+import { useCaptura, AvisoCaptura } from "@/components/CapturaSegura";
+import Button from "@/components/ui/Button";
 import VolverCampo from "@/components/VolverCampo";
 import { formatFechaCorta } from "@/lib/format";
 
+// Color pleno (borde + fondo) solo para estados que piden acción; los demás
+// llevan borde neutro y comunican por tinte de fondo + etiqueta.
 const ESTILO: Record<EstadoAsistencia, { clase: string; etiqueta: string }> = {
-  pendiente: { clase: "border-pending/50 bg-pending/10 text-muted", etiqueta: "Sin marcar" },
-  presente: { clase: "border-ok bg-ok/10 text-ok", etiqueta: "Presente" },
-  medio: { clase: "border-warn bg-warn/10 text-warn", etiqueta: "Medio día" },
+  pendiente: { clase: "border-line bg-paper text-muted", etiqueta: "Sin marcar" },
+  presente: { clase: "border-line bg-ok/10 text-ok", etiqueta: "Presente" },
+  medio: { clase: "border-line bg-warn/10 text-warn", etiqueta: "Medio día" },
   ausente: { clase: "border-alert bg-alert/10 text-alert", etiqueta: "Ausente" },
 };
 
@@ -55,17 +59,23 @@ export default function AsistenciaClient({
   const filaDe = (personalId: string) =>
     asistencias?.find((a) => a.personal_id === personalId);
 
+  const { errorCaptura, capturar } = useCaptura();
+
   async function onTap(persona: PersonalRow) {
     const fila = filaDe(persona.id);
     const siguiente = SIGUIENTE_ESTADO[estadoDeFila(fila)];
-    await marcarAsistencia(obraId, etapaId, persona.id, siguiente, fila);
+    await capturar(() =>
+      marcarAsistencia(obraId, etapaId, persona.id, siguiente, fila),
+    );
   }
 
   async function onAlta(e: React.FormEvent) {
     e.preventDefault();
     const n = nombre.trim();
     if (!n) return;
-    await altaPersona(obraId, n, rol.trim() || null);
+    // Limpiar el form solo si el guardado local fue OK (si falló, no perder lo tipeado).
+    const ok = await capturar(() => altaPersona(obraId, n, rol.trim() || null));
+    if (!ok) return;
     setNombre("");
     setRol("");
     setAltaAbierta(false);
@@ -82,6 +92,8 @@ export default function AsistenciaClient({
         </div>
         <ChipSync />
       </div>
+
+      <AvisoCaptura visible={errorCaptura} />
 
       <ul className="flex flex-col gap-2">
         {(personal ?? []).map((p) => {
@@ -117,21 +129,18 @@ export default function AsistenciaClient({
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             placeholder="Nombre"
-            className="min-h-12 rounded-lg border border-black/20 px-3 text-base"
+            className="min-h-12 rounded-lg border border-line-strong px-3 text-base"
           />
           <input
             value={rol}
             onChange={(e) => setRol(e.target.value)}
             placeholder="Rol (opcional)"
-            className="min-h-12 rounded-lg border border-black/20 px-3 text-base"
+            className="min-h-12 rounded-lg border border-line-strong px-3 text-base"
           />
           <div className="flex gap-2">
-            <button
-              type="submit"
-              className="min-h-12 flex-1 rounded-lg bg-brand font-bold text-white"
-            >
+            <Button variante="primary" tamano="campo" type="submit" className="flex-1">
               Agregar
-            </button>
+            </Button>
             <button
               type="button"
               onClick={() => setAltaAbierta(false)}
