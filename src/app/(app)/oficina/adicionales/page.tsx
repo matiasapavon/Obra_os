@@ -4,6 +4,7 @@ import TablaOficina, {
   type ColumnaOficina,
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
+import FormAlta from "@/components/oficina/FormAlta";
 
 const ESTADOS = [
   { value: "propuesto", label: "Propuesto" },
@@ -54,6 +55,16 @@ export default async function AdicionalesPage() {
   return (
     <section>
       <h2 className="mb-2 text-lg font-semibold text-ink">Adicionales</h2>
+      <FormAlta
+        tabla="adicionales"
+        etiqueta="Adicional"
+        campos={[
+          { key: "descripcion", label: "Descripción", requerido: true },
+          { key: "origen", label: "Origen", tipo: "select", opciones: ORIGENES },
+          { key: "lo_paga", label: "Lo paga", tipo: "select", opciones: LO_PAGA },
+          { key: "costo_estimado", label: "Costo est.", tipo: "money" },
+        ]}
+      />
       <TablaOficina
         columnas={COLS}
         hayFilas={filas.length > 0}

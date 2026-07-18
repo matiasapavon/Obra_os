@@ -5,6 +5,7 @@ import TablaOficina, {
   type ColumnaOficina,
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
+import FormAlta from "@/components/oficina/FormAlta";
 
 const TIPOS = [
   { value: "ART", label: "ART" },
@@ -49,6 +50,16 @@ export default async function VencimientosPage() {
       <h2 className="mb-2 text-lg font-semibold text-ink">
         Vencimientos administrativos
       </h2>
+      <FormAlta
+        tabla="vencimientos_admin"
+        etiqueta="Vencimiento"
+        campos={[
+          { key: "tipo", label: "Tipo", tipo: "select", opciones: TIPOS, requerido: true },
+          { key: "fecha_vencimiento", label: "Vence", tipo: "date", requerido: true },
+          { key: "descripcion", label: "Descripción" },
+          { key: "responsable", label: "Responsable" },
+        ]}
+      />
       <TablaOficina
         columnas={COLS}
         hayFilas={filas.length > 0}

@@ -77,7 +77,14 @@
       asistencias, diario) con edición inline vía server action + allow-list. Gate admin en el
       layout de `/oficina`. Patrón reutilizable `TablaOficina`/`CeldaEditable`/`BadgeEstado`.
 - [ ] Gating por rol en `/campo` (diferido: sin capataz no urge; `/oficina` ya está gateado).
-- [ ] Alta de filas desde `/oficina` (personal/tareas) — hoy solo edición inline de lo existente.
+- [x] **Alta de filas desde `/oficina`** (2026-07-17): server action genérico `crearFila`
+      (`src/lib/oficina/crearFila.ts`, espejo de `actualizarCampo` con allow-list `INSERTABLES`,
+      re-chequeo admin, `obra_id` inyectado server-side, fallback de `gastos.rubro_id` a "Sin
+      clasificar") + componente `FormAlta` (`src/components/oficina/FormAlta.tsx`, botón "+"
+      que despliega form inline). Cableado en 9 páginas: personal, tareas, etapas, rubros,
+      gastos, compromisos, ingresos, adicionales, vencimientos. Verificado en navegador
+      (persona, gasto con rubro default + total, vencimiento con CHECK enum). Lint/typecheck/build
+      verdes.
 
 ## Fase 2 — Economía / plata ✅ (solo desktop admin, 2026-07-11)
 - [x] Allow-list `EDITABLES` ampliada (rubros, gastos, compromisos, ingresos, adicionales,

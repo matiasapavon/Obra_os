@@ -5,6 +5,7 @@ import TablaOficina, {
   type ColumnaOficina,
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
+import FormAlta from "@/components/oficina/FormAlta";
 
 const COLS: ColumnaOficina[] = [
   { key: "nombre", label: "Rubro" },
@@ -47,6 +48,14 @@ export default async function RubrosPage() {
   return (
     <section>
       <h2 className="mb-2 text-lg font-semibold text-ink">Rubros</h2>
+      <FormAlta
+        tabla="rubros"
+        etiqueta="Rubro"
+        campos={[
+          { key: "nombre", label: "Nombre", requerido: true },
+          { key: "presupuesto_base", label: "Presupuesto", tipo: "money" },
+        ]}
+      />
       <TablaOficina
         columnas={COLS}
         hayFilas={filas.length > 0}

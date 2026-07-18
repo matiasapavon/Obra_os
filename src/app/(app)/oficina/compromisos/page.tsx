@@ -4,6 +4,7 @@ import TablaOficina, {
   type ColumnaOficina,
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
+import FormAlta from "@/components/oficina/FormAlta";
 
 const ESTADOS = [
   { value: "pendiente", label: "Pendiente" },
@@ -52,6 +53,16 @@ export default async function CompromisosPage() {
   return (
     <section>
       <h2 className="mb-2 text-lg font-semibold text-ink">Compromisos</h2>
+      <FormAlta
+        tabla="compromisos"
+        etiqueta="Compromiso"
+        campos={[
+          { key: "concepto", label: "Concepto", requerido: true },
+          { key: "monto_total", label: "Monto total", tipo: "money", requerido: true },
+          { key: "rubro_id", label: "Rubro", tipo: "select", opciones: opcionesRubro },
+          { key: "fecha_estimada_pago", label: "Pago estimado", tipo: "date" },
+        ]}
+      />
       <TablaOficina
         columnas={COLS}
         hayFilas={filas.length > 0}

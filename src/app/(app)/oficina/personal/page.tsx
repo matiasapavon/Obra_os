@@ -4,6 +4,7 @@ import TablaOficina, {
   type ColumnaOficina,
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
+import FormAlta from "@/components/oficina/FormAlta";
 import { formatFechaCorta } from "@/lib/format";
 
 const COLUMNAS: ColumnaOficina[] = [
@@ -47,7 +48,17 @@ export default async function PersonalPage() {
   const filas = personal ?? [];
 
   return (
-    <TablaOficina columnas={COLUMNAS} hayFilas={filas.length > 0}>
+    <section>
+      <FormAlta
+        tabla="personal"
+        etiqueta="Persona"
+        campos={[
+          { key: "nombre", label: "Nombre", requerido: true },
+          { key: "rol", label: "Rol" },
+          { key: "telefono", label: "Teléfono" },
+        ]}
+      />
+      <TablaOficina columnas={COLUMNAS} hayFilas={filas.length > 0}>
       {filas.map((p) => (
         <tr
           key={p.id}
@@ -90,7 +101,8 @@ export default async function PersonalPage() {
             {formatFechaCorta(p.created_at)}
           </td>
         </tr>
-      ))}
-    </TablaOficina>
+        ))}
+      </TablaOficina>
+    </section>
   );
 }

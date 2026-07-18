@@ -5,6 +5,7 @@ import TablaOficina, {
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
 import CeldaEstado from "@/components/oficina/CeldaEstado";
+import FormAlta from "@/components/oficina/FormAlta";
 
 const ESTADOS = [
   { value: "pendiente", label: "Pendiente" },
@@ -41,7 +42,16 @@ export default async function TareasPage() {
   const filas = tareas ?? [];
 
   return (
-    <TablaOficina columnas={COLUMNAS} hayFilas={filas.length > 0}>
+    <section>
+      <FormAlta
+        tabla="tareas"
+        etiqueta="Tarea"
+        campos={[
+          { key: "nombre", label: "Nombre", requerido: true },
+          { key: "ubicacion", label: "Ubicación" },
+        ]}
+      />
+      <TablaOficina columnas={COLUMNAS} hayFilas={filas.length > 0}>
       {filas.map((t) => (
         <tr
           key={t.id}
@@ -105,7 +115,8 @@ export default async function TareasPage() {
             tipo="date"
           />
         </tr>
-      ))}
-    </TablaOficina>
+        ))}
+      </TablaOficina>
+    </section>
   );
 }

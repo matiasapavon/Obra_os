@@ -5,6 +5,7 @@ import TablaOficina, {
   type ColumnaOficina,
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
+import FormAlta from "@/components/oficina/FormAlta";
 
 const MONEDAS = [
   { value: "ARS", label: "ARS" },
@@ -52,6 +53,16 @@ export default async function IngresosPage() {
           Total: <span className="tabular-nums">{formatARS(totalVisible)}</span>
         </p>
       </div>
+      <FormAlta
+        tabla="ingresos"
+        etiqueta="Ingreso"
+        campos={[
+          { key: "monto", label: "Monto", tipo: "money", requerido: true },
+          { key: "concepto", label: "Concepto", tipo: "select", opciones: CONCEPTOS },
+          { key: "fecha", label: "Fecha", tipo: "date" },
+          { key: "moneda", label: "Moneda", tipo: "select", opciones: MONEDAS },
+        ]}
+      />
       <TablaOficina
         columnas={COLS}
         hayFilas={filas.length > 0}
