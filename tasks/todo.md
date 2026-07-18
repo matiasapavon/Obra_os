@@ -103,10 +103,11 @@
       de pedidos con `BotonGastoDesdePedido` (muestra "✓ Gasto" si ya está linkeado). Verificado.
 - [x] Alta de filas de plata desde `/oficina` — cubierto por `FormAlta` (ver Fase 1).
 
-### Follow-up detectado (2026-07-17)
-- [ ] `gastos.fecha` (y otras columnas `default current_date`) usan UTC en la base: altas con
-      fecha vacía de noche en Argentina quedan un día adelantadas. Requiere migración (default a
-      timezone AR o setear fecha desde la app). Bajo impacto pero conviene corregirlo.
+### Follow-up detectado y resuelto (2026-07-17)
+- [x] `gastos/ingresos/adicionales.fecha` usaban el default `current_date` (UTC) de la base:
+      altas con fecha vacía de noche en Argentina quedaban un día adelantadas. Resuelto a nivel
+      app: `crearFila` inyecta `fechaHoyISO()` (zona AR) cuando la fecha viene vacía
+      (`FECHA_DEFAULT_AR`). Sin migración. Verificado (ingreso sin fecha → 17/7, no 18/7).
 
 ## Fase 3 — Cronograma + alertas ✅ (2026-07-11)
 - [x] **Etapas** (`/oficina/etapas`): tabla editable (orden, nombre, estado, fechas plan/real).

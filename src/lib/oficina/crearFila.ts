@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { obraActiva } from "@/lib/oficina/obra";
+import { fechaHoyISO } from "@/lib/format";
 
 // Allow-list de columnas insertables por tabla. Cualquier clave fuera de acá se
 // descarta del payload — evita que un POST armado escriba columnas arbitrarias.
@@ -21,6 +22,11 @@ const INSERTABLES: Record<string, readonly string[]> = {
 
 // Tablas que no cuelgan de una obra (personal es global al estudio).
 const SIN_OBRA = new Set(["personal"]);
+
+// Tablas con `fecha date default current_date`: ese default corre en UTC en la
+// base, así que un alta de noche en Argentina caería un día adelantada. Cuando
+// la fecha viene vacía la fijamos con el día real en zona AR.
+const FECHA_DEFAULT_AR = new Set(["gastos", "ingresos", "adicionales"]);
 
 const RUTA: Record<string, string> = {
   vencimientos_admin: "vencimientos",
@@ -63,6 +69,10 @@ export async function crearFila(
   for (const col of permitidas) {
     const v = valores[col];
     if (v !== undefined && v !== null && v !== "") payload[col] = v;
+  }
+
+  if (FECHA_DEFAULT_AR.has(tabla) && !payload.fecha) {
+    payload.fecha = fechaHoyISO();
   }
 
   if (!SIN_OBRA.has(tabla)) {
