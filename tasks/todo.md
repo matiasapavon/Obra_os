@@ -40,8 +40,11 @@
 - [x] **[Dashboard Supabase]** Authentication → "Allow new users to sign up" deshabilitado (2026-07-17).
 - [x] **[Dashboard Supabase]** Usuario de Mati (`matias.a.pavon`) es admin — verificado en la
       práctica: el export API (admin-only) le responde (2026-07-17).
-- [ ] Tipar los 3 clientes de `src/lib/supabase/` con `<Database>` (client.ts, server.ts,
-      middleware.ts) — opcional, mejora el tipado end-to-end.
+- [x] Tipar los 3 clientes de `src/lib/supabase/` con `<Database>` (client.ts, server.ts,
+      middleware.ts) — ya estaban tipados (verificado 2026-07-17). `database.types.ts` al día
+      (incluye `obras_usuarios`). Los casts `UpdateDinamico`/`InsertDinamico` en
+      `actualizarCampo`/`crearFila` eluden el tipado a propósito (tabla/columna dinámicas
+      validadas por allow-list en runtime).
 - [ ] Verificar RLS con roles simulados en el SQL Editor (ver plan de la sesión 2026-07-11).
 - [ ] Decidir si versionar `HANDOFF-obra-os.md` en el repo (hoy solo está en el escritorio).
 
