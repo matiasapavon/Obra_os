@@ -5,6 +5,7 @@ import TablaOficina, {
 } from "@/components/oficina/TablaOficina";
 import CeldaEditable from "@/components/oficina/CeldaEditable";
 import CeldaEstado from "@/components/oficina/CeldaEstado";
+import BotonGastoDesdePedido from "@/components/oficina/BotonGastoDesdePedido";
 
 const ESTADOS_PEDIDO = [
   { value: "a_pedir", label: "A pedir" },
@@ -35,6 +36,7 @@ const COLS_PEDIDOS: ColumnaOficina[] = [
   { key: "costo_estimado", label: "Costo est.", alinear: "right" },
   { key: "costo_real", label: "Costo real", alinear: "right" },
   { key: "notas", label: "Notas" },
+  { key: "gasto", label: "Gasto" },
 ];
 
 const COLS_CATALOGO: ColumnaOficina[] = [
@@ -154,6 +156,10 @@ export default async function MaterialesPage() {
                 id={p.id}
                 columna="notas"
                 valor={p.notas}
+              />
+              <BotonGastoDesdePedido
+                pedidoId={p.id}
+                tieneGasto={p.gasto_id != null}
               />
             </tr>
           ))}

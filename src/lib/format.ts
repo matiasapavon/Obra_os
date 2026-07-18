@@ -40,7 +40,16 @@ export function fechaHoyISO(): string {
 const rtf = new Intl.RelativeTimeFormat("es-AR", { numeric: "auto" });
 
 function aDate(fecha: string | Date): Date {
-  return typeof fecha === "string" ? new Date(fecha) : fecha;
+  if (typeof fecha !== "string") return fecha;
+  // Un string solo-fecha (YYYY-MM-DD) lo parsea el motor como UTC medianoche;
+  // al leerlo con getters locales en Argentina (UTC-3) retrocede un día. Lo
+  // construimos como fecha local para que el día mostrado sea el guardado.
+  const soloFecha = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fecha);
+  if (soloFecha) {
+    const [, y, m, d] = soloFecha;
+    return new Date(Number(y), Number(m) - 1, Number(d));
+  }
+  return new Date(fecha);
 }
 
 /** "mar 30/6" — día de la semana abreviado + día/mes. */

@@ -96,9 +96,17 @@
 - [x] **Compromisos, ingresos, adicionales, vencimientos** con el mismo patrón
       (`TablaOficina`/`CeldaEditable`). Vencimientos pendientes ya pasados en rojo.
 - [x] Typecheck, lint y build verdes. Commit por entidad.
-- [ ] UI para linkear `pedidos_materiales.gasto_id` → gasto (el puente existe en el esquema;
-      falta decidir la interacción — probablemente un botón "crear gasto desde pedido").
-- [ ] Alta de filas de plata desde `/oficina` (hoy solo edición inline, igual que Fase 1).
+- [x] **Botón "crear gasto desde pedido"** (2026-07-17): server action `crearGastoDesdePedido`
+      (`src/lib/oficina/crearGastoDesdePedido.ts`) crea un gasto imputado a "Sin clasificar"
+      (concepto = material, monto = costo real o estimado, tipo material, fecha `fechaHoyISO`) y
+      linkea `pedidos_materiales.gasto_id`. Idempotente por pedido. Columna "Gasto" en la tabla
+      de pedidos con `BotonGastoDesdePedido` (muestra "✓ Gasto" si ya está linkeado). Verificado.
+- [x] Alta de filas de plata desde `/oficina` — cubierto por `FormAlta` (ver Fase 1).
+
+### Follow-up detectado (2026-07-17)
+- [ ] `gastos.fecha` (y otras columnas `default current_date`) usan UTC en la base: altas con
+      fecha vacía de noche en Argentina quedan un día adelantadas. Requiere migración (default a
+      timezone AR o setear fecha desde la app). Bajo impacto pero conviene corregirlo.
 
 ## Fase 3 — Cronograma + alertas ✅ (2026-07-11)
 - [x] **Etapas** (`/oficina/etapas`): tabla editable (orden, nombre, estado, fechas plan/real).
